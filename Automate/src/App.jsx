@@ -1,13 +1,18 @@
+/* Components */
 import Login from './components/Login';
 import Signup from './components/Signup';
 import { UserAuthContextProvider } from './components/UserAuth';
+import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from './components/Navbar';
+
+/* Pages */
 import Home from './pages/Home';
 import { Route, Routes } from 'react-router-dom'
-import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <UserAuthContextProvider>
+    <Navbar />
       <Routes>
         <Route path="/login" element={ <Login /> } />
         <Route path="/" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />

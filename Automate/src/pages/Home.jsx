@@ -2,28 +2,14 @@ import React from "react";
 import { useUserAuth } from "../components/UserAuth";
 
 const Home = () => {
-  const { user, logOut } = useUserAuth();
-
-  const handleLogOut = async () => {
-    try {
-      await logOut();
-      console.log("you are logged out");
-    } catch (e) {
-      console.log("suss not working");
-    }
-  };
-  if (!user) {
-    return (
-      <div>
-        <h1>Home</h1>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      <h1>Welcome User!</h1>
-      <button onClick={handleLogOut}>LogOut</button>
+    <div class="flex h-screen bg-slate-400">
+      <div class="w-full max-w-xs m-auto bg-white rounded-lg p-5">
+        <div class="justify-center items-center">
+          <h1>Welcome User!</h1>
+        </div>
+      </div>
     </div>
   );
 };
