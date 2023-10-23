@@ -9,8 +9,10 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "vitest run src/tests && playwright test",
-    "coverage": "vitest run --coverage"
+    "test": "npm run vitest:test && npm run playwright:test",
+    "vitest:test": "vitest run src/tests",
+    "playwright:test": "playwright test",
+    "coverage": "vitest run src/tests --coverage"
   },
   "dependencies": {
     "firebase": "^10.5.0",
