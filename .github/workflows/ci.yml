@@ -1,11 +1,17 @@
-name: Node.js CI
+name: CI
+
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+
 jobs:
-  test-frontend:
+  test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
@@ -14,7 +20,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: 'Create env file'
+      - name: Create env file
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
       - name: Use Node.js ${{ matrix.node-version }}
@@ -28,8 +34,12 @@ jobs:
         run: npx playwright install --with-deps
       - name: Build application
         run: npm run build
+      - name: Run vitest
+        run: npm run vitest:test
       - name: Generate code coverage
         run: npm run coverage
+      - name: Run playwright tests
+        run: npm run playwright:test
       - name: Upload code coverage
         uses: actions/upload-artifact@v3
         if: always()
@@ -37,10 +47,6 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 30
-      - name: Run vitest
-        run: npm run vitest:test
-      - name: Run playwright tests
-        run: npm run playwright:test
       - name: Upload playwright report
         uses: actions/upload-artifact@v3
         if: always()
@@ -48,3 +54,12 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+      - name: Playwright report comment
+        uses: daun/playwright-report-summary@v2
+        with:
+          report-file: playwright-report/results.json
+      - name: Vitest Coverage Report
+        uses: davelosert/vitest-coverage-report-action@v2.1.1
+        with:
+          file-coverage-mode: all
+
