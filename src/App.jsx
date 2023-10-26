@@ -9,6 +9,7 @@ import ForgotPassword from './components/ForgotPassword';
 /* Pages */
 import Home from './pages/Home';
 import { Route, Routes } from 'react-router-dom'
+import Test from './pages/Test';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
         <Route path="/signup" element={ <Signup /> } />
         <Route path="/reset" element={ <ForgotPassword /> } />
+        <Route path="/test" element={ <Test/> } />
       </Routes>
     </UserAuthContextProvider>
   );
