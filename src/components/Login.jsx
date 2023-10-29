@@ -15,7 +15,7 @@ const Login = () => {
       await logIn(email, password);
       navigate("/");
     } catch (err) {
-      
+
       setErr(true);
     }
   };
@@ -30,6 +30,7 @@ const Login = () => {
           <span data-testid="login-error" style={{visibility: error ? "visible" : "hidden", color: "red"}} >Login Error</span>
             <label className="block mb-2 text-indigo-500" for="username">Username</label>
             <input type="email"
+                   id="username"
                    placeholder="Email"
                    value={email}
                    onChange={(e) => setEmail(e.target.value)}
@@ -38,14 +39,15 @@ const Login = () => {
           <div>
             <label className="block mb-2 text-indigo-500" for="password">Password</label>
             <input type="password"
+                   id="password"
                    placeholder="Password"
                    value={password}
-                   onChange={(e) => setPassword(e.target.value)} 
+                   onChange={(e) => setPassword(e.target.value)}
                    className="w-full p-2 mb-6 text-indigo-700 border-b-2 border-indigo-500 outline-none focus:bg-gray-300" name="password"/>
           </div>
-          <div>          
+          <div>
             <button data-testid="login-button" className="w-full bg-indigo-700 hover:bg-green-700 text-white font-bold py-2 px-4 mb-6 rounded" type="submit">Login</button>
-          </div>       
+          </div>
         </form>
         <a className="text-indigo-700 hover:text-green-700 text-sm flex justify-center items-center"><Link to="/signup">Dont Have an Account? Signup</Link></a>
         <a className="text-indigo-700 hover:text-green-700 text-sm flex justify-center items-center"><Link to="/reset">Forgot Password?</Link></a>
