@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useUserAuth } from "./UserAuth";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebase";
 
 // This needs changing to actually handle sending an email, with also formating "i.e Dear email, here is your login: email, password..."
 const mockFirebaseSendEmail = async (email, password) => {
@@ -51,7 +53,12 @@ class SendEmail extends Task {
   }
 
   async execute() {
-    await mockFirebaseSendEmail(this.data.email, this.data.password);
+    //await mockFirebaseSendEmail(this.data.email, this.data.password);
+    try{
+      await sendPasswordResetEmail(auth, this.data.email);
+    } catch (err){
+      alert(err.code)
+    }
   }
 }
 
