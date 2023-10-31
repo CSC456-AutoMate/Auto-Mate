@@ -14,9 +14,12 @@ export default defineConfig({
     css: true,
     setupFiles: "./src/Tests/setup.ts",
     coverage: {
-      provider: 'istanbul', // or 'v8'
-      reporter: ['text', 'json', 'html'],
-      reportsDirectory: './src/Tests/Post_Coverage'
+            reporter: [
+                'text',
+                'html',
+                'json-summary',
+                'json'
+            ]
     },
   }
 })
