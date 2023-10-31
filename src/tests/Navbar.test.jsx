@@ -1,44 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { UserAuthContextProvider } from "../components/UserAuth";
+import { UserAuthContextProvider, useUserAuth } from "../components/UserAuth";
 import Navbar from "../components/Navbar";
+
+// TestComponent to handle and display error
+function TestComponent() {
+  const { setError, error } = useUserAuth();
+
+  useEffect(() => {
+    setError("Mocked logout error");
+  }, []);
+
+  return <div>{error}</div>;
+}
 
 // Unit Test (navbar renders by checking if Automate (title) is shown/available)
 test("navbar renders", () => {
-    render(
-      <BrowserRouter>
-        <UserAuthContextProvider>
-          <Navbar />
-        </UserAuthContextProvider>
-      </BrowserRouter>
-    );
-
-    const brandText = screen.getByText("AutoMate");
-    expect(brandText).toBeInTheDocument();})
-
-test("handleLogOut function sets an error message when logOut fails", () => {
   render(
     <BrowserRouter>
-      <UserAuthContextProvider initialUser={{}}>
+      <UserAuthContextProvider>
         <Navbar />
       </UserAuthContextProvider>
     </BrowserRouter>
   );
 
-  const { setError } = useUserAuth(); // access setError from context
-
-  // Manually set an error
-  setError("Mocked logout error");
-
-  const logoutButton = screen.getByTestId("logout");
-  fireEvent.click(logoutButton);
-
-  const { error } = useUserAuth(); // access error from context after logout attempt
-
-  expect(error).toBe("Mocked logout error"); // check if error was set correctly
+  const brandText = screen.getByText("AutoMate");
+  expect(brandText).toBeInTheDocument();
 });
-    
+
 // Integration Tests
 describe("Navbar", () => {
   test("navbar renders & shows logged out state components", () => {
@@ -62,8 +52,6 @@ describe("Navbar", () => {
     fireEvent.click(menuButton);
   });
 
-  //<UserAuthContextProvider initialUser = {{}}> implies user data was set
-
   test("navbar renders & shows logged in state components", () => {
     render(
       <BrowserRouter>
@@ -82,5 +70,24 @@ describe("Navbar", () => {
     expect(screen.getByTestId("logout")).toBeVisible();
 
     fireEvent.click(menuButton);
+  });
+});
+
+// Error Handling Test
+describe("Navbar Error Handling", () => {
+  test("handleLogOut function sets an error message when logOut fails", () => {
+    render(
+      <BrowserRouter>
+        <UserAuthContextProvider initialUser={{}}>
+          <Navbar />
+          <TestComponent />
+        </UserAuthContextProvider>
+      </BrowserRouter>
+    );
+
+    const logoutButton = screen.getByTestId("logout");
+    fireEvent.click(logoutButton);
+
+    expect(screen.getByText("Mocked logout error")).toBeInTheDocument();
   });
 });
