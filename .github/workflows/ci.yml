@@ -45,6 +45,6 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: coverage
-          path: coverage/
+          name: Post_Coverage
+          path: Post_Coverage/
           retention-days: 30
