@@ -16,7 +16,7 @@ export default defineConfig({
     coverage: {
       provider: 'istanbul', // or 'v8'
       reporter: ['text', 'json', 'html'],
-      reportsDirectory: './src/Tests/Post_Coverage'
+      reportsDirectory: './Post_Coverage'
     },
   }
 })
