@@ -112,6 +112,16 @@ export default function Workflow() {
     setFormData({ name: "", email: "", jobRole: "" });
   };
 
+  const removeAction = (indexToRemove) => {
+    setSelectedActions((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
+    );
+    setTasksCompleted((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
+
   const runWorkflow = async () => {
     for (let i = 0; i < selectedActions.length; i++) {
       const action = selectedActions[i];
@@ -200,11 +210,17 @@ export default function Workflow() {
         <h2>Selected Actions</h2>
         <ul>
           {selectedActions.map((action, index) => (
-            <li key={index} className="mb-2">
+            <li key={index} className="mb-2 flex items-center">
               {tasksCompleted[index] ? (
-                <span className="text-green-500">&#x2714;</span>
-              ) : null}{" "}
+                <span className="text-green-500 mr-2">&#x2714;</span>
+              ) : null}
               {action.name}
+              <button
+                onClick={() => removeAction(index)}
+                className="ml-4 bg-red-500 text-white p-1 rounded"
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
