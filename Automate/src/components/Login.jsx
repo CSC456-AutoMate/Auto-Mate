@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { logIn } = useUserAuth();
+  const logIn = useUserAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

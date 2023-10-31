@@ -5,17 +5,21 @@ import { useNavigate, Link } from "react-router-dom";
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signUp } = useUserAuth();
+  const  {signUp}  = useUserAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await signUp(email, password);
+      alert("Success")
       navigate("/login");
     } catch (err) {
-      console.log(err);
+      //alert("2 Invalid credentials")
+      console.log(err, 'ERROR');
+      alert(err)
     }
+    
   };
 
   return (
@@ -41,7 +45,7 @@ const Signup = () => {
                    class="w-full p-2 mb-6 text-indigo-700 border-b-2 border-indigo-500 outline-none focus:bg-gray-300" name="password"/>
           </div>
           <div>          
-            <button class="w-full bg-indigo-700 hover:bg-green-700 text-white font-bold py-2 px-4 mb-6 rounded" type="submit">SignUp</button>
+            <button class="w-full bg-indigo-700 hover:bg-green-700 text-white font-bold py-2 px-4 mb-6 rounded" data-testid="signup-button" type="submit">SignUp</button>
           </div>       
         </form>
         <a class="text-indigo-700 hover:text-green-700 text-sm flex justify-center items-center"><Link to="/login">Already have an Account? Login</Link></a>
