@@ -8,7 +8,8 @@ const { test, expect } = require('@playwright/test');
 // completed.
 
 test('workflow end to end test', async ({ page }) => {
- await page.goto('http://127.0.0.1:5173/login');
+ await page.goto('http://localhost:5173/login');
+ await page.waitForTimeout(1500);
   await page.getByPlaceholder('Email').click();
   await page.getByPlaceholder('Email').fill('test123@aol.com');
   await page.getByPlaceholder('Password').click();
