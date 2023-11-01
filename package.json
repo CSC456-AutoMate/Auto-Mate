@@ -9,8 +9,9 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "npm run vitest:test",
+    "test": "npm run vitest:test && npm run playwright:test",
     "vitest:test": "vitest run src/tests",
+    "playwright:test": "playwright test",
     "coverage": "vitest run src/tests --coverage"
   },
   "dependencies": {
