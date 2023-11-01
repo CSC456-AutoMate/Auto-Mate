@@ -30,7 +30,7 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Running server
-      run: npm run dev
+      run: npm run build
 
     - name: Execute unit tests (Vitest)
       run: npm run vitest:test
