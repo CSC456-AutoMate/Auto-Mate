@@ -37,6 +37,7 @@ const Navbar = () => {
             {user ? (
               <>
                 <li><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0"><button data-testid="logout" onClick={handleLogOut}>LogOut</button></a></li>
+                <li><Link to="/profile"><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Profile Page</a></Link></li>
               </>
             ) : (
               <>
