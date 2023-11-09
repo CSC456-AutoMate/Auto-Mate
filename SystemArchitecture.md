@@ -16,5 +16,6 @@ The User entity is the authentication data for the users using the Auto Mate pla
 
 ## Flow Diagram
 
+![Flow diagram](FlowDiagram.png)
 
-
+An user (who doesn't have an account) will sign up to get their new account, then is able to log in using that account and has the option to log out. When logged in, the user is able to access the dashboard and create workflows for onboarding a new employee. Once a workflow is created, the user can then execute the workflow to perform the onboarding tasks, and responses will be sent back to the user upon finishing the tasks.
