@@ -10,3 +10,11 @@ In the Auto Mate application, the user is able to use the web interface/browser 
 
 ## Entity Diagram
 
+![Entity diagram](EntityDiagram.png)
+
+The User entity is the authentication data for the users using the Auto Mate platform, each user has an unique UID, with their email, password, date of signed in, and date of created. The User entity is one to many to the Workflow entity because one user may have more than one workflows saved in their account. The Workflow entity is the workflow created by the users, each workflow has an unique ID with its name and tasks. The Workflow entity is one to one to Employee Info entity because every workflow is responsible for onboarding only one employee, so requiring only one employee info. The Employee Info holds employee data for the workflows, each employee info has an unique ID with its name, email, and role of that employee.
+
+## Flow Diagram
+
+
+
