@@ -7,15 +7,20 @@ import menu from '../assets/menu.png'
 const Navbar = () => {
 
   const { user, logOut } = useUserAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const handleLogOut = async () => {
     try {
       await logOut();
+      setIsMenuOpen(false)
       console.log("you are logged out");
     } catch (e) {
       console.log("suss not working");
     }}
+
+    const closeMenu = () => {
+      setIsMenuOpen(false)
+    }
 
   return (
     <nav className="border-gray-200 bg-gray-50">
@@ -37,11 +42,12 @@ const Navbar = () => {
             {user ? (
               <>
                 <li><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0"><button data-testid="logout" onClick={handleLogOut}>LogOut</button></a></li>
+                <li><Link to="/profile" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Profile Page</Link></li>
               </>
             ) : (
               <>
-                <li><Link to="/login"><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Login</a></Link></li>
-                <li><Link to="/signup"><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Sign Up</a></Link></li>
+                <li><Link to="/login" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Login</Link></li>
+                <li><Link to="/signup" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Sign Up</Link></li>
               </>
             )}
           </ul>
