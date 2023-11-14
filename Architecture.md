@@ -10,13 +10,12 @@ The diagram shows the firebase server we use for our database. Then both our fro
 
 ## Relationship Diagram
 
-![Relationship Diagram](relationship_diagram)
+<img src="Relationship-Diagram.png" height=600>
 
-CoRise Stretch: replace the diagram image, and add a text description
+There is a User object which can be connected into the Employee and Employer Objects. The Employer can make workflows that automates their hiring processes. Each Employer can make many workflows, and the workflows can be connected to many employees
 
 ## Flow Diagram
 
-![Flow Diagram](flow_diagram)
+<img src="Flow-Diagram.png" height=600>
 
-CoRise Stretch: replace the diagram image, and add a text description
- Save
+There is a User that can create accounts that is then updated to the Firebase server. Then the User can also create workflows and edit the workflows made.
