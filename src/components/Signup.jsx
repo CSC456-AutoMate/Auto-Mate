@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useUserAuth } from "./UserAuth";
 import { useNavigate, Link } from "react-router-dom";
+import { db } from "../firebase";
+import { doc, setDoc} from "firebase/firestore";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +21,7 @@ const Signup = () => {
       setErr(true);
     }
   };
-
+  
   return (
     <div className="flex h-screen bg-slate-400">
       <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
