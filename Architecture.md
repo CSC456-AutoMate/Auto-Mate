@@ -4,7 +4,7 @@ This document describes the overall architecture of the Forum Application.
 
 ## Highlevel Component Digram
 
-![Component Diagram](![image](https://github.com/seaniori21/Auto-Mate-Fork/assets/74208155/c72f9ce4-765e-4bde-a5cc-dd92eb890e74)
+![Component Diagram](![image](HighLevel Components.png)
 )
 
 CoRise TODO: replace the diagram image, and add a text description
