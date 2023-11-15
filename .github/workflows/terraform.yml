@@ -1,0 +1,88 @@
+# This workflow will provision the infrastructure necessary to deploy our application.
+
+name: terraform
+
+on:
+    push:
+        branches: [ main ]
+        paths:
+            - 'terraform/*'
+            - '.github/workflows/terraform.yaml'
+    pull_request:
+        branches: [ main ]
+        paths:
+            - 'terraform/*'
+            - '.github/workflows/terraform.yaml'
+jobs:
+  format:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    name: Format
+    
+    steps:
+      # Clone the repository.
+      - uses: actions/checkout@v2
+        with:
+          # This is required or we end up in detached head state & thus cannot push any changes.
+          ref: ${{ github.head_ref }}
+      # Download & set up the terraform CLI.
+      - name: Set up terraform CLI
+        uses: hashicorp/setup-terraform@v1
+      
+      - run: terraform fmt -check
+        working-directory: ./terraform
+        id: fmt
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+      
+      - name: update pr
+        if: ${{ steps.fmt.outcome == 'failure' && github.event_name == 'pull_request' }}
+        run: |
+          terraform fmt
+          git config --global user.name "terraform-fmt"
+          git config --global user.email "noreply@corise.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git commit -am "fixup: terraform fmt"
+          git push
+        working-directory: ./terraform
+  terraform:
+
+    runs-on: ubuntu-latest
+
+    name: Validate, Plan, and Apply
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+    
+    steps:
+      - uses: actions/checkout@v2
+      # Download & set up the terraform CLI.
+      - name: Set up terraform CLI
+        uses: hashicorp/setup-terraform@v1
+      # Initialize terraform.
+      - name: terraform init
+        working-directory: ./terraform
+        id: init
+        run: terraform init -input=false
+      - name: terraform validate
+        working-directory: ./terraform
+        if: ${{ github.event_name == 'pull_request' }}
+        run: terraform validate -no-color
+      - name: terraform plan
+        working-directory: ./terraform
+        id: plan
+        if: ${{ github.event_name == 'pull_request' }}
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+      - name: pass or fail
+        uses: actions/github-script@v6
+        if: ${{ steps.plan.outcome == 'failure' }}
+        with:
+          script: |
+            core.setFailed('Plan failed!')
+      - name: terraform apply
+        id: apply
+        working-directory: ./terraform
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: terraform apply -auto-approve -input=false
