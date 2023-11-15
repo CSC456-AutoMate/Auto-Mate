@@ -30,3 +30,5 @@ dist-ssr
 
 # terraform
 /terraform/terraform.exe
+/terraform/.terraform
+/terraform/.terraform.lock.hcl
