@@ -49,15 +49,16 @@ jobs:
                 aws-region: "us-east-1" 
 
             - name: Upload application file to AWS
-              run: aws s3 cp automate_nightfall28_deploy-${{github.sha}}.zip s3://flaskbbapp
+              run: aws s3 cp automate_nightfall28_deploy-${{github.sha}}.zip s3://automateapp
 
             - name: Create new application version
               run: |  
                 aws elasticbeanstalk create-application-version \
                 --application-name flaskbb \
-                --source-bundle S3Bucket="flaskbbapp",S3Key="automate_nightfall28_deploy-${{github.sha}}.zip " \
+                --source-bundle S3Bucket="automateapp",S3Key="automate_nightfall28_deploy-${{github.sha}}.zip " \
                 --version-label "ver-${{ github.sha }}" \
                 --description "commit-sha-${{ github.sha }}"
+                --region "us-east-1"
 
             - name: Deploy application
-              run: aws elasticbeanstalk update-environment --environment-name flaskbb-environment --version-label "ver-${{ github.sha }}"
+              run: aws elasticbeanstalk update-environment --environment-name flaskbb-environment --version-label "ver-${{ github.sha }}" --region "us-east-1"
