@@ -1,0 +1,9 @@
+---
+
+- name: Local run
+  hosts: local
+  tasks:
+      - name: Create droplet
+        ansible.builtin.include_role:
+            name: droplets
+        loop: "{{ groups['cloud'] }}"
