@@ -38,9 +38,3 @@
     type: A
     value: "{{ droplet_ipv4 }}"
     solo: true
-
-- name: Debug
-  ansible.builtin.debug:
-    # msg: "{{ droplet_info.data.droplet.networks.v4. }}"
-    msg: "{{ droplet_ipv4 }}"
-    # msg: "{{ droplet_found.data[0].id | default(-1) }}"
