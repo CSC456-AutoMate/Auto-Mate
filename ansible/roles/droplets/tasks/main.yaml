@@ -2,7 +2,7 @@
 
 - name: Gather information about droplet {{ item }}
   community.digitalocean.digital_ocean_droplet_info:
-    api_token: "dop_v1_c636fa3ae65893e7d77dcd905b36e2f5706705099970edc3e70ccc31526b062d"
+    api_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
     name: "{{ item }}"
   register: droplet_found
   ignore_errors: true
@@ -10,8 +10,7 @@
 - name: Create droplet {{ item }}
   community.digitalocean.digital_ocean_droplet:
     state: present
-    # api_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
-    api_token: "dop_v1_c636fa3ae65893e7d77dcd905b36e2f5706705099970edc3e70ccc31526b062d"
+    api_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
     name: "{{ item }}"
     project: automate
     size: s-1vcpu-1gb
@@ -23,8 +22,24 @@
       - "36:ad:40:4a:25:50:f4:77:76:c3:bb:d1:1d:65:cd:17"
   register: droplet_info
 
+- name: Get public IPv4
+  ansible.builtin.set_fact:
+    droplet_ipv4: "{{ droplet_networks_v4.ip_address }}"
+  loop: "{{ droplet_info.data.droplet.networks.v4 }}"
+  loop_control:
+    loop_var: droplet_networks_v4
+  when: droplet_networks_v4.type == 'public'
 
-# - name: Debug
-#   ansible.builtin.debug:
-    # msg: "{{ droplet_info }}"
+- name: Setup A record for {{ item }}
+  community.general.cloudflare_dns module:
+    api_token: "{{ lookup('ansible.builtin.env', 'CF_TOKEN') }}"
+    zone: auto-mate.cc
+    record: "{{ item.split('.')[0] }}"
+    type: A
+    value: "{{ droplet_ipv4 }}"
+
+- name: Debug
+  ansible.builtin.debug:
+    # msg: "{{ droplet_info.data.droplet.networks.v4. }}"
+    msg: "{{ droplet_ipv4 }}"
     # msg: "{{ droplet_found.data[0].id | default(-1) }}"
