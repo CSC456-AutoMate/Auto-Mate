@@ -22,6 +22,6 @@ jobs:
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: site.yml
-          directory: ./ansible/
+          directory: ansible
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           requirements: requirements.yml
