@@ -7,3 +7,19 @@
         ansible.builtin.include_role:
             name: droplets
         loop: "{{ groups['cloud'] }}"
+
+- name: Configure droplets
+  hosts: cloud
+  roles:
+      - provision
+      - auth
+      - hostname
+      - hosts
+      - ntp
+      - ssh
+      - timezone
+      - unattended-upgrades
+      - geerlingguy.nodejs
+      - basic_setup
+  remote_user: root
+  become: true
