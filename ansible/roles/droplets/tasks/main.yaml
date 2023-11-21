@@ -1,0 +1,30 @@
+---
+
+- name: Gather information about droplet {{ item }}
+  community.digitalocean.digital_ocean_droplet_info:
+    api_token: "dop_v1_c636fa3ae65893e7d77dcd905b36e2f5706705099970edc3e70ccc31526b062d"
+    name: "{{ item }}"
+  register: droplet_found
+  ignore_errors: true
+
+- name: Create droplet {{ item }}
+  community.digitalocean.digital_ocean_droplet:
+    state: present
+    # api_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
+    api_token: "dop_v1_c636fa3ae65893e7d77dcd905b36e2f5706705099970edc3e70ccc31526b062d"
+    name: "{{ item }}"
+    project: automate
+    size: s-1vcpu-1gb
+    region: nyc1
+    image: ubuntu-22-04-x64
+    wait_timeout: 500
+    id: "{{ droplet_found.data[0].id | default(-1) }}"
+    ssh_keys:
+      - "36:ad:40:4a:25:50:f4:77:76:c3:bb:d1:1d:65:cd:17"
+  register: droplet_info
+
+
+# - name: Debug
+#   ansible.builtin.debug:
+    # msg: "{{ droplet_info }}"
+    # msg: "{{ droplet_found.data[0].id | default(-1) }}"
