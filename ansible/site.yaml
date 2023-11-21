@@ -18,6 +18,7 @@
       - ntp
       - ssh
       - timezone
+      - ufw
       - unattended-upgrades
       - geerlingguy.nodejs
       - basic_setup
