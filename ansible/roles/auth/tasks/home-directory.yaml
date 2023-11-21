@@ -1,0 +1,16 @@
+---
+
+- name: "Check for {{ item.key }} home directory"
+  local_action: stat path={{ playbook_dir }}/../files/home/{{ item.key }}
+  register: home_directory_exists
+  run_once: true
+  when: item.value.state == "present"
+  become: no
+
+- name: "Copy {{ item.key }} home directory"
+  copy:
+    src: "{{ playbook_dir }}/../files/home/{{ item.key }}/"
+    owner: "{{ item.key }}"
+    force: no
+    dest: "/home/{{ item.key }}/"
+  when: item.value.state == "present" and home_directory_exists.stat.exists == true

@@ -1,0 +1,18 @@
+---
+
+- name: Create directory for ansible local facts
+  file:
+    state: directory
+    recurse: yes
+    path: /etc/ansible/facts.d
+
+- name: "Creating local {{ item.name }} fact"
+  template:
+    src:  template.fact.j2
+    dest: "/etc/ansible/facts.d/{{ item.name }}.fact"
+  register: localFact
+
+- name: Update local facts
+  setup:
+    filter: ansible_local
+  when: localFact.changed

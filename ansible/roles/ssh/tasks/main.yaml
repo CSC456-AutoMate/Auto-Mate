@@ -1,0 +1,53 @@
+---
+
+- name: set_fact auth__users
+  set_fact:
+    auth__users: "{{ auth__users | default([]) | combine(lookup('vars', item), recursive = true) }}"
+  loop: "{{ query('varnames', '^auth__users__.+') }}"
+
+- name: set_fact ssh__allowed_groups
+  set_fact:
+    ssh__allowed_groups: "{{ ssh__allowed_groups | default([]) + lookup('vars', item) }}"
+  loop: "{{ query('varnames', '^ssh__allowed_groups__.+') }}"
+
+- name: Create authorized keys directory
+  file:
+    path: "{{ ssh__authorized_keys_path | regex_replace('%u') }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  notify: Restart ssh
+  when: ssh__authorized_keys_path != false
+
+- name: Add public keys to authorized keys
+  authorized_key:
+    user: "{{ item.0.key }}"
+    key: "{{ item.1.key }}"
+    state: "{{ item.1.state | default('absent') }}"
+    path: "{% if ssh__authorized_keys_path != false %}{{ ssh__authorized_keys_path | regex_replace('%u', item.0.key) }}{% else %}/home/{{ item.0.key }}/.ssh/authorized_keys{% endif %}"
+    manage_dir: "{% if ssh__authorized_keys_path != false %}no{% else %}yes{% endif %}"
+  loop: "{{ auth__users | dict2items | subelements('value.authorized_keys', {'skip_missing': True}) }}"
+  loop_control:
+    label: "{{ item.0.key }}"
+  when: item.0.value.state == 'present'
+
+- name: Setup sshd_config file
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    validate: /usr/sbin/sshd -T -f %s
+  notify: Restart ssh
+
+- name: Install mosh
+  apt:
+    name: mosh
+    cache_valid_time: 300
+
+- name: Add ufw rules
+  include_role:
+    name: ufw
+    tasks_from: rule
+  loop: "{{ ssh__ufw_rules | dict2items }}"

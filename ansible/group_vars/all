@@ -26,3 +26,5 @@ ssh__allowed_groups__all:
   - root
 
 timezone: 'America/New_York'
+
+nodejs_version: '20.x'

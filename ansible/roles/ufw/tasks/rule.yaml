@@ -1,0 +1,15 @@
+---
+
+- name: "rule : {{ item }}"
+  ufw:
+    rule: "{{ item.value.policy | default(omit) }}"
+    name: "{{ item.value.name | default(omit) }}"
+    delete: "{{ item.value.delete | default('no') }}"
+    from_ip: "{{ item.value.from_ip | default(omit) }}"
+    from_port: "{{ item.value.from_port | default(omit) }}"
+    log: "{{ item.value.log | default(omit) }}"
+    proto: "{{ item.value.proto | default(omit) }}"
+    route: "{{ item.value.route | default(omit) }}"
+    to_ip: "{{ item.value.to_ip | default(omit) }}"
+    to_port: "{{ item.value.to_port | default(omit) }}"
+  notify: Reload UFW

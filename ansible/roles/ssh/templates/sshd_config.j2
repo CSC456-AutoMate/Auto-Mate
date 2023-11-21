@@ -1,0 +1,60 @@
+# {{ ansible_managed }}
+
+Port {{ ssh__port }}
+
+Protocol 2
+
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_dsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+SyslogFacility AUTH
+LogLevel INFO
+
+LoginGraceTime 120
+PermitRootLogin {{ ssh__root_login }}
+StrictModes yes
+
+PubkeyAuthentication {{ ssh__public_key_authentication }}
+AuthorizedKeysFile {% if ssh__authorized_keys_path != false %}{{ ssh__authorized_keys_path }}{% else %}%h/.ssh/authorized_keys{% endif %}
+
+IgnoreRhosts yes
+
+HostbasedAuthentication no
+
+PermitEmptyPasswords no
+
+KbdInteractiveAuthentication no
+
+PasswordAuthentication {{ ssh__password_authentication }}
+
+X11Forwarding yes
+X11DisplayOffset 10
+PrintMotd yes
+PrintLastLog yes
+TCPKeepAlive yes
+
+AcceptEnv LANG LC_*
+
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+UsePAM yes
+
+AllowGroups {{ ssh__allowed_groups | join(' ') }}
+
+{% if ssh__authentication_methods != false %}
+AuthenticationMethods {{ ssh__authentication_methods | join(',') }}
+{% endif %}
+
+{% for user in auth__users %}
+{% if auth__users[user].ssh_options is defined %}
+Match User {{ user }}
+{% if auth__users[user].ssh_options.password_auth is defined %}
+    PasswordAuthentication {{ auth__users[user].ssh_options.password_auth }}
+{% endif %}
+{% if auth__users[user].ssh_options.authentication_methods is defined %}
+    AuthenticationMethods {{ auth__users[user].ssh_options.authentication_methods | join(',') }}
+{% endif %}
+{% endif %}
+{% endfor %}

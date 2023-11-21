@@ -1,0 +1,18 @@
+---
+
+unattended_upgrades__allowed_origins:
+  - ${distro_id}:${distro_codename}
+  - ${distro_id}:${distro_codename}-security
+  - ${distro_id}ESM:${distro_codename}
+
+unattended_upgrades__package_blacklist: []
+
+unattended_upgrades__update_package_list_interval: 1
+
+unattended_upgrades__download_upgradeable_package_interval: 1
+
+unattended_upgrades__auto_clean_interval: 7
+
+unattended_upgrades__unattended_upgrade_interval: 1
+
+unattended_upgrades__auto_reboot: false

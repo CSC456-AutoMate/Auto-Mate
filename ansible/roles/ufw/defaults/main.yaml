@@ -1,0 +1,7 @@
+---
+
+ufw__incoming_policy: reject
+
+ufw__outgoing_policy: allow
+
+ufw__rules: {}

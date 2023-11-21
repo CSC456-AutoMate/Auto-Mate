@@ -1,0 +1,57 @@
+---
+
+- name: set_fact auth__users
+  set_fact:
+    auth__users: "{{ auth__users | default([]) | combine(lookup('vars', item), recursive = true) }}"
+  loop: "{{ query('varnames', '^auth__users__.+') }}"
+  when: not auth__users__load is defined
+
+- name: set_fact auth__groups
+  set_fact:
+    auth__groups: "{{ auth__groups | default([]) | combine(lookup('vars', item), recursive = true) }}"
+  loop: "{{ query('varnames', '^auth__groups__.+') }}"
+  when: not auth__groups__load is defined
+
+- name: Create groups
+  group:
+    name: "{{ item.key }}"
+    gid: "{{ item.value.gid | default(omit) }}"
+    state: "{{ item.value.state }}"
+    system: "{{ item.value.system | default('no') }}"
+  loop: "{{ auth__groups | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Create users
+  user:
+    name: "{{ item.key }}"
+    group: "{{ item.value.primary_group | default(omit) }}"
+    groups: "{{ item.value.groups | default(omit) or join(',') }}"
+    shell: "{{ item.value.shell | default('/bin/bash') }}"
+    comment: "{{ item.value.desc | default(omit) }}"
+    uid: "{{ item.value.uid | default(omit) }}"
+    createhome: "{{ item.value.createhome | default('yes') }}"
+    state: "{{ item.value.state | default('absent') }}"
+    password: "{{ item.value.password | default(omit) }}"
+  loop: "{{ auth__users | dict2items }}"
+  loop_control:
+      label: "{{ item.key }}"
+
+- name: Copy user home directories
+  include_role:
+    name: auth
+    tasks_from: home-directory
+  loop: "{{ auth__users | dict2items }}"
+  loop_control:
+      label: "{{ item.key }}"
+
+- name: Install sudo
+  apt:
+    name: sudo
+    cache_valid_time: 300
+
+- name: Modify sudoers
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/ansible
+    validate: '/usr/sbin/visudo -cf %s'

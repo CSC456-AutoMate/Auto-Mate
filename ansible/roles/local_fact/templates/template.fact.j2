@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+{% for category in item.categories -%}
+[{{ category.name | lower }}]
+{% for fact in category.facts %}
+{{ fact.name | lower }}={{ fact.value | lower}}
+{%- endfor %}
+{%- endfor %}
