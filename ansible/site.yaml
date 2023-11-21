@@ -9,7 +9,7 @@
         loop: "{{ groups['cloud'] }}"
       - name: Wait to allow dns changes to propogate
         ansible.builtin.pause:
-          minutes: 1
+          minutes: 3
       - name: Refresh inventory after pause
         ansible.builtin.meta: refresh_inventory
 
