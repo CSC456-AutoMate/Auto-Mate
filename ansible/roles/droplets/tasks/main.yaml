@@ -2,7 +2,7 @@
 
 - name: Gather information about droplet {{ item }}
   community.digitalocean.digital_ocean_droplet_info:
-    api_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
+    oauth_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
     name: "{{ item }}"
   register: droplet_found
   ignore_errors: true
@@ -10,7 +10,7 @@
 - name: Create droplet {{ item }}
   community.digitalocean.digital_ocean_droplet:
     state: present
-    api_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
+    oauth_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
     name: "{{ item }}"
     project: automate
     size: s-1vcpu-1gb
@@ -31,12 +31,13 @@
   when: droplet_networks_v4.type == 'public'
 
 - name: Setup A record for {{ item }}
-  community.general.cloudflare_dns module:
+  community.general.cloudflare_dns:
     api_token: "{{ lookup('ansible.builtin.env', 'CF_TOKEN') }}"
     zone: auto-mate.cc
     record: "{{ item.split('.')[0] }}"
     type: A
     value: "{{ droplet_ipv4 }}"
+    solo: true
 
 - name: Debug
   ansible.builtin.debug:
