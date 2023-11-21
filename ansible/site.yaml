@@ -7,6 +7,11 @@
         ansible.builtin.include_role:
             name: droplets
         loop: "{{ groups['cloud'] }}"
+      - name: Wait to allow dns changes to propogate
+        ansible.builtin.pause:
+          minutes: 1
+      - name: Refresh inventory after pause
+        ansible.builtin.meta: refresh_inventory
 
 - name: Configure droplets
   hosts: cloud
