@@ -20,6 +20,7 @@
     id: "{{ droplet_found.data[0].id | default(-1) }}"
     ssh_keys:
       - "36:ad:40:4a:25:50:f4:77:76:c3:bb:d1:1d:65:cd:17"
+      - "f1:fd:38:48:42:bc:cd:36:81:ef:aa:6c:13:67:77:5a"
   register: droplet_info
 
 - name: Get public IPv4
