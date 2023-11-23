@@ -18,5 +18,12 @@
   when: ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
   changed_when: ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
   notify:
-    - Set provision local fact
     - Reboot system after dist-upgrade
+  register: aptDistUpgrade
+
+# Cannot use handler due to bug with include_role and handlers
+- name: Set provision local fact
+  ansible.builtin.include_role:
+    name: local_fact
+  with_items: "{{ provision__post_upgrade }}"
+  when: aptDistUpgrade.changed
