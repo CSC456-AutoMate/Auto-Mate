@@ -1,33 +1,22 @@
 ---
 
 - name: Update local facts
-  setup:
+  ansible.builtin.setup:
     filter: ansible_local
 
 - name: Add provision local fact
-  include_role:
+  ansible.builtin.include_role:
     name: local_fact
   with_items: "{{ provision__pre_upgrade }}"
   when: ansible_local.provision is not defined
 
 - name: Run apt-get dist-upgrade
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     upgrade: dist
-    force_apt_get: yes
-  when: ansible_local.provision.setup.initial_setup | bool == false
-  changed_when: ansible_local.provision.setup.initial_setup | bool == false
-  register: aptDistUpgrade
-
-# Cannot use handler due to bug with include_role and handlers
-- name: Set provision local fact
-  include_role:
-    name: local_fact
-  with_items: "{{ provision__post_upgrade }}"
-  when: aptDistUpgrade.changed
-
-- name: Reboot system after dist-upgrade
-  reboot:
-    connect_timeout: 5
-    post_reboot_delay: 30
-  when: aptDistUpgrade.changed
+    force_apt_get: true
+  when: ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
+  changed_when: ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
+  notify:
+    - Set provision local fact
+    - Reboot system after dist-upgrade

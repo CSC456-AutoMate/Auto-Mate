@@ -1,0 +1,11 @@
+---
+
+- name: Set provision local fact
+  ansible.builtin.include_role:
+    name: local_fact
+  with_items: "{{ provision__post_upgrade }}"
+
+- name: Reboot system after dist-upgrade
+  ansible.builtin.reboot:
+    connect_timeout: 5
+    post_reboot_delay: 30

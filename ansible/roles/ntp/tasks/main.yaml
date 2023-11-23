@@ -1,31 +1,32 @@
 ---
 
 - name: Check status of timesyncd
-  shell: timedatectl
+  ansible.builtin.command: timedatectl
   register: ntp_synchronized
-  changed_when: False
+  changed_when: false
 
 - name: Disable timesyncd
-  shell: timedatectl set-ntp off
+  ansible.builtin.command: timedatectl set-ntp off
   when:
     - not ansible_check_mode
     - "'Network time on: yes' in ntp_synchronized.stdout or 'NTP service: active' in ntp_synchronized.stdout"
 
 - name: Install ntp
-  apt:
+  ansible.builtin.apt:
     name: ntp
     cache_valid_time: 300
 
 - name: Ensure ntp service started
-  service:
+  ansible.builtin.service:
     name: ntp
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Configure ntp
-  template:
+  ansible.builtin.template:
     src: ntp.conf.j2
     dest: /etc/ntp.conf
     owner: root
     group: root
+    mode: 0644
   notify: Restart ntp

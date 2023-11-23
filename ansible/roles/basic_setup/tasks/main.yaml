@@ -5,26 +5,23 @@
     src: automate.j2
     dest: /etc/systemd/system/automate.service
     mode: 0644
-  # notify: Reload systemctl
-  # register: service_created
+  notify: Reload systemctl
+  register: service_created
 
-- name: Reload systemctl
-  ansible.builtin.systemd_service:
-    daemon_reload: true
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Stop service
   ansible.builtin.systemd:
     name: automate
     state: stopped
-  # when: service_created is not changed
 
 - name: Clone repo
   ansible.builtin.git:
     repo: https://github.com/armyf35/Auto-Mate.git
     dest: /opt/automate
-    # single_branch: true
+    single_branch: true
     version: assignment_deployment
-    # force: true
 
 - name: Create env
   ansible.builtin.template:
@@ -35,11 +32,13 @@
 - name: Install packages based on package.json.
   community.general.npm:
     path: /opt/automate
+    ci: true
 
 - name: Build project
-  ansible.builtin.shell: npm run build
+  ansible.builtin.command: npm run build
   args:
     chdir: /opt/automate/
+  changed_when: true
 
 - name: Start service
   ansible.builtin.systemd:

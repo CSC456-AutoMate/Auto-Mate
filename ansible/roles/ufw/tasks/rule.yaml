@@ -1,7 +1,7 @@
 ---
 
-- name: "rule : {{ item }}"
-  ufw:
+- name: "Rule : {{ item }}"
+  ansible.builtin.ufw:
     rule: "{{ item.value.policy | default(omit) }}"
     name: "{{ item.value.name | default(omit) }}"
     delete: "{{ item.value.delete | default('no') }}"

@@ -1,0 +1,5 @@
+---
+
+- name: Update local facts
+  ansible.builtin.setup:
+    filter: ansible_local

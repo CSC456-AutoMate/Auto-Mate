@@ -1,8 +1,7 @@
 ---
 
 - name: Restart ssh
-  service:
+  ansible.builtin.service:
     name: ssh
     state: restarted
-    enabled: yes
-
+    enabled: true

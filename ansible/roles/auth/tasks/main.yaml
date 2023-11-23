@@ -1,19 +1,19 @@
 ---
 
-- name: set_fact auth__users
-  set_fact:
-    auth__users: "{{ auth__users | default([]) | combine(lookup('vars', item), recursive = true) }}"
+- name: Set_fact auth__users
+  ansible.builtin.set_fact:
+    auth__users: "{{ auth__users | default([]) | combine(lookup('vars', item), recursive=true) }}"
   loop: "{{ query('varnames', '^auth__users__.+') }}"
   when: not auth__users__load is defined
 
-- name: set_fact auth__groups
-  set_fact:
-    auth__groups: "{{ auth__groups | default([]) | combine(lookup('vars', item), recursive = true) }}"
+- name: Set_fact auth__groups
+  ansible.builtin.set_fact:
+    auth__groups: "{{ auth__groups | default([]) | combine(lookup('vars', item), recursive=true) }}"
   loop: "{{ query('varnames', '^auth__groups__.+') }}"
   when: not auth__groups__load is defined
 
 - name: Create groups
-  group:
+  ansible.builtin.group:
     name: "{{ item.key }}"
     gid: "{{ item.value.gid | default(omit) }}"
     state: "{{ item.value.state }}"
@@ -23,7 +23,7 @@
     label: "{{ item.key }}"
 
 - name: Create users
-  user:
+  ansible.builtin.user:
     name: "{{ item.key }}"
     group: "{{ item.value.primary_group | default(omit) }}"
     groups: "{{ item.value.groups | default(omit) or join(',') }}"
@@ -35,23 +35,25 @@
     password: "{{ item.value.password | default(omit) }}"
   loop: "{{ auth__users | dict2items }}"
   loop_control:
-      label: "{{ item.key }}"
+    label: "{{ item.key }}"
 
 - name: Copy user home directories
-  include_role:
+  ansible.builtin.include_role:
     name: auth
     tasks_from: home-directory
   loop: "{{ auth__users | dict2items }}"
   loop_control:
-      label: "{{ item.key }}"
+    label: "{{ item.key }}"
+  when: item.value.state == "present"
 
 - name: Install sudo
-  apt:
+  ansible.builtin.apt:
     name: sudo
     cache_valid_time: 300
 
 - name: Modify sudoers
-  template:
+  ansible.builtin.template:
     src: sudoers.j2
     dest: /etc/sudoers.d/ansible
     validate: '/usr/sbin/visudo -cf %s'
+    mode: 0644
