@@ -37,6 +37,14 @@ class CreateAzureUser extends Task {
   }
 }
 
+class AddUserToGroup extends Task {
+  async execute() {
+    // Need to wait 3 minutes for User to be added to Group
+    console.log("Wait 3 minutes for Azure User to be created")
+    await new Promise((res) => setTimeout(res, 180000));
+  }
+}
+
 //create login action
 class CreateUserLogin extends Task {
   constructor(details, signUpFunc) {
@@ -78,6 +86,8 @@ export default function Workflow() {
   const [tasksCompleted, setTasksCompleted] = useState([]);
   const [detailsDialog, setDetailsDialog] = useState(false);
   const [azureDialog, setAzureDialog] = useState(false);
+  const [groupDialog, setGroupDialog] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -89,6 +99,10 @@ export default function Workflow() {
     mail_nickname: "",
     user_principal_name: "",
     password: "",
+  });
+
+  const [groupFormData, setGroupFormData] = useState({
+    user_principal_name: ""
   });
   
 
@@ -123,6 +137,10 @@ export default function Workflow() {
       lastAction.name === "Send Email"
     ) {
       setAzureDialog(true);
+    } else if (
+      actionName === "Add User to Group"
+    ) {
+      setGroupDialog(true);
     }
   };
 
@@ -154,6 +172,24 @@ export default function Workflow() {
     }
   };
 
+  const handleGroup = async (e) => {
+    e.preventDefault();
+    setSelectedActions((prev) => [
+      ...prev,
+      { name: "Add User to Group", data: groupFormData },
+    ]);
+    setTasksCompleted((prev) => [...prev, false]);
+    setGroupDialog(false);
+    setGroupFormData({user_principal_name:""});
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/group', groupFormData);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error adding user to group:', error);
+    }
+  };
+
   const removeAction = (indexToRemove) => {
     setSelectedActions((prev) =>
       prev.filter((_, index) => index !== indexToRemove)
@@ -174,7 +210,9 @@ export default function Workflow() {
           ? new CreateUserLogin(action.data, signUp)
           : action.name === "Send Email"
           ? new SendEmail(action.data)
-          : new CreateAzureUser()
+          : action.name === "Create Azure User"
+          ? new CreateAzureUser()
+          : new AddUserToGroup()
       await taskInstance.execute();
       setTasksCompleted((prev) => {
         const newStatus = [...prev];
@@ -294,10 +332,32 @@ export default function Workflow() {
         </form>
       )}
 
+      {/* Add User to Group Details */}
+      {groupDialog && (
+        <form onSubmit={handleGroup}>
+          <h1>Enter User Principal Name</h1>
+          <div >
+            <label>User Principal Name:</label>
+            <input
+              type="text"
+              id = "userPrincipalName"
+              name="userPrincipalName"
+              value={groupFormData.user_principal_name}
+              onChange={(e) =>
+                setGroupFormData((prev) => ({ ...prev, user_principal_name: e.target.value }))
+              }
+              className="ml-2 border rounded p-1"
+            />
+          </div>
+          <br />
+          <button type="submit" >Submit</button>
+        </form>
+      )}
+
       {/* Add Actions */}
       <div className="mb-4">
         <h2>Add Actions</h2>
-        {["Enter Details", "Create User Login", "Send Email", "Create Azure User"].map(
+        {["Enter Details", "Create User Login", "Send Email", "Create Azure User", "Add User to Group"].map(
           (actionName) => (
             <button
               key={actionName}
