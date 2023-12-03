@@ -5,6 +5,7 @@ from azure.identity.aio import ClientSecretCredential
 from msgraph import GraphServiceClient
 from msgraph.generated.models.user import User
 from msgraph.generated.models.password_profile import PasswordProfile
+from msgraph.generated.models.reference_create import ReferenceCreate
 
 
 app = Flask(__name__)
@@ -48,6 +49,16 @@ async def get_user_id(principalName):
     user = await client.users.by_user_id(f'{principalName}@jhhuang28outlook.onmicrosoft.com').get()
     return user.id
 
+# Add User to a group in Azure
+async def add_user_to_group(principalName):
+    user_id = await get_user_id(principalName)
+    print(user_id)
+    request_body = ReferenceCreate(
+        odata_id = f"https://graph.microsoft.com/v1.0/directoryObjects/{user_id}"
+    )
+    result = await client.groups.by_group_id(GROUP_ID).members.ref.post(request_body)
+    print("User Added to Group")
+    return result
 
 
 # routes
@@ -66,6 +77,16 @@ async def create_azure_user():
         await create_user(data['display_name'], data['mail_nickname'], data['user_principal_name'], data['password'])
         return "User Created"
     return "Executing"
+
+@app.route('/group', methods=['GET', 'POST'])
+async def add_user_to_group_azure():
+    if request.method == 'POST':
+        data = request.get_json()
+        print(data)
+        await add_user_to_group(data['user_principal_name'])
+        return "User Added to Group"
+    return "Executing"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
