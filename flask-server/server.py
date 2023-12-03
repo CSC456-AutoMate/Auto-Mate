@@ -14,6 +14,7 @@ CORS(app)
 TENANT_ID = "<tenant_id>"
 CLIENT_ID = "<client_id>"
 CLIENT_SECRET = "<client_secret>"
+GROUP_ID = "<group_id>"
 
 # Initialize a GraphServiceClient object
 credential = ClientSecretCredential(
@@ -41,6 +42,13 @@ async def create_user(display_name, mail_nickname, user_principal_name, password
     result = await client.users.post(request_body)
     print("User Created")
     return result
+
+# get user id
+async def get_user_id(principalName):
+    user = await client.users.by_user_id(f'{principalName}@jhhuang28outlook.onmicrosoft.com').get()
+    return user.id
+
+
 
 # routes
 @app.route('/test', methods=['GET', 'POST'])
