@@ -335,6 +335,7 @@ export default function Workflow() {
       {/* Add User to Group Details */}
       {groupDialog && (
         <form onSubmit={handleGroup}>
+          <h1 style={{ color: 'red' }}>WAIT FOR NEW USER TO BE CREATED BEFORE ADDING TO GROUP (wait ~ 3 mins)</h1>
           <h1>Enter User Principal Name</h1>
           <div >
             <label>User Principal Name:</label>

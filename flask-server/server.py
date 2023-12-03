@@ -46,7 +46,7 @@ async def create_user(display_name, mail_nickname, user_principal_name, password
 
 # get user id
 async def get_user_id(principalName):
-    user = await client.users.by_user_id(f'{principalName}@jhhuang28outlook.onmicrosoft.com').get()
+    user = await client.users.by_user_id(f'{principalName}@<domain_name>').get()
     return user.id
 
 # Add User to a group in Azure
