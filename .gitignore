@@ -29,3 +29,7 @@ serviceAccountKey.json
 /playwright-report/
 /playwright/.cache/
 
+# terraform
+/terraform/terraform.exe
+/terraform/.terraform
+/terraform/.terraform.lock.hcl

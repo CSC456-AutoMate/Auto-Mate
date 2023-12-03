@@ -1,0 +1,64 @@
+# This workflow will deploy the application to the running environment after a successful merge to main
+
+name: deploy
+
+on:
+    workflow_run:
+        workflows: [test] # Triggered by the test workflow
+        types: [completed] # The test workflow must complete
+        branches: [main] # Only when main is updated
+
+jobs:
+    on-success:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only when test completed successfully 
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v2
+
+            - name: Set up Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                node-version: ${{ matrix.node-version }}
+
+            - name: Install dependencies
+              run: |
+                npm install
+                cd flask-server
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+      
+            - name: Prepare FlaskBB
+              run: |
+                flaskbb translations compile
+
+            - name: Build binary distribution and upload to artifactory
+              run: zip -r "automate_nightfall28_deploy-${{github.sha}}.zip" ./flask-server ./src .eslintrc.cjs index.html package-lock.json package.json postcss.config.js README.md tailwind.config.js vite.config.js
+              
+            - name: Upload application artifact
+              uses: actions/upload-artifact@v3
+              with:
+                name: automate_application_artifact
+                path: automate_nightfall28_deploy-${{github.sha}}.zip
+
+            - name: Congifure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+                aws-region: "us-east-1" 
+
+            - name: Upload application file to AWS
+              run: aws s3 cp automate_nightfall28_deploy-${{github.sha}}.zip s3://automateapp
+
+            - name: Create new application version
+              run: |  
+                aws elasticbeanstalk create-application-version \
+                --application-name flaskbb \
+                --source-bundle S3Bucket="automateapp",S3Key="automate_nightfall28_deploy-${{github.sha}}.zip " \
+                --version-label "ver-${{ github.sha }}" \
+                --description "commit-sha-${{ github.sha }}"
+                --region "us-east-1"
+
+            - name: Deploy application
+              run: aws elasticbeanstalk update-environment --environment-name flaskbb-environment --version-label "ver-${{ github.sha }}" --region "us-east-1"
