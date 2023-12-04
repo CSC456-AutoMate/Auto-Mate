@@ -6,7 +6,6 @@
     dest: /etc/systemd/system/automate.service
     mode: 0644
   notify: Reload systemctl
-  register: service_created
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
@@ -15,6 +14,7 @@
   ansible.builtin.systemd:
     name: automate
     state: stopped
+  notify: Start service
 
 - name: Clone repo
   ansible.builtin.git:
@@ -22,25 +22,7 @@
     dest: /opt/automate
     single_branch: true
     version: assignment_deployment
-
-- name: Create env
-  ansible.builtin.template:
-    src: env.j2
-    dest: /opt/automate/.env
-    mode: 0644
-
-- name: Install packages based on package.json.
-  community.general.npm:
-    path: /opt/automate
-    ci: true
-
-- name: Build project
-  ansible.builtin.command: npm run build
-  args:
-    chdir: /opt/automate/
-  changed_when: true
-
-- name: Start service
-  ansible.builtin.systemd:
-    name: automate
-    state: started
+  notify:
+    - Create env
+    - Install packages based on package.json
+    - Build project
