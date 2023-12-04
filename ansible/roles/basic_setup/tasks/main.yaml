@@ -26,3 +26,4 @@
     - Create env
     - Install packages based on package.json
     - Build project
+    - Start service
