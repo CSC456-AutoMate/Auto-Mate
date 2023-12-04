@@ -15,7 +15,7 @@ const Login = () => {
       await logIn(email, password);
       navigate("/");
     } catch (err) {
-      
+      console.log(err)
       setErr(true);
     }
   };
@@ -23,12 +23,12 @@ const Login = () => {
   return (
     <div className="flex h-screen bg-slate-400">
       <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
-        <a data-testid="login-1" class="flex justify-center items-center mb-3 font-bold">Login</a>
+        <a data-testid="login-1" className="flex justify-center items-center mb-3 font-bold">Login</a>
         {/* <img class="w-20 mx-auto mb-5" src={} /> */}
         <form onSubmit={handleSubmit}>
           <div>
           <span data-testid="login-error" style={{visibility: error ? "visible" : "hidden", color: "red"}} >Login Error</span>
-            <label className="block mb-2 text-indigo-500" for="username">Username</label>
+            <label className="block mb-2 text-indigo-500" htmlFor="username">Username</label>
             <input type="email"
                    placeholder="Email"
                    value={email}
@@ -36,7 +36,7 @@ const Login = () => {
                    className="w-full p-2 mb-6 text-indigo-700 border-b-2 border-indigo-500 outline-none focus:bg-gray-300" name="username"/>
           </div>
           <div>
-            <label className="block mb-2 text-indigo-500" for="password">Password</label>
+            <label className="block mb-2 text-indigo-500" htmlFor="password">Password</label>
             <input type="password"
                    placeholder="Password"
                    value={password}
