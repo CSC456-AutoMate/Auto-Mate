@@ -1,0 +1,11 @@
+[local]
+localhost ansible_connection=local
+
+[production]
+vm[01:01].auto-mate.cc
+
+[develop]
+vm[02:02].auto-mate.cc
+
+[staging]
+vm[03:03].auto-mate.cc

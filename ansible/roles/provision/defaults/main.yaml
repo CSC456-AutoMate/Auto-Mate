@@ -1,0 +1,17 @@
+---
+
+provision__pre_upgrade:
+  - name: provision
+    categories:
+      - name: setup
+        facts:
+          - name: initial_setup
+            value: false
+
+provision__post_upgrade:
+  - name: provision
+    categories:
+      - name: setup
+        facts:
+          - name: initial_setup
+            value: true

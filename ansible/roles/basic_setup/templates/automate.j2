@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Auto-mate
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/opt/automate
+ExecStart=/usr/bin/npm start
+
+[Install]
+WantedBy=multi-user.target

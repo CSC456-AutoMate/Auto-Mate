@@ -1,0 +1,48 @@
+---
+
+- name: Gather information about droplet
+  community.digitalocean.digital_ocean_droplet_info:
+    oauth_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
+    name: "{{ inventory_hostname }}"
+  register: droplet_found
+  ignore_errors: true
+  delegate_to: localhost
+
+- name: Create droplet
+  community.digitalocean.digital_ocean_droplet:
+    state: present
+    oauth_token: "{{ lookup('ansible.builtin.env', 'DO_API_TOKEN') }}"
+    name: "{{ inventory_hostname }}"
+    project: automate
+    size: s-1vcpu-1gb
+    region: nyc1
+    image: ubuntu-22-04-x64
+    wait_timeout: 500
+    id: "{{ droplet_found.data[0].id | default(-1) }}"
+    ssh_keys:
+      - "36:ad:40:4a:25:50:f4:77:76:c3:bb:d1:1d:65:cd:17"
+      - "f1:fd:38:48:42:bc:cd:36:81:ef:aa:6c:13:67:77:5a"
+  register: droplet_info
+  delegate_to: localhost
+
+- name: Get public IPv4
+  ansible.builtin.set_fact:
+    droplet_ipv4: "{{ droplet_networks_v4.ip_address }}"
+  loop: "{{ droplet_info.data.droplet.networks.v4 }}"
+  loop_control:
+    loop_var: droplet_networks_v4
+  when: droplet_networks_v4.type == 'public'
+  delegate_to: localhost
+
+- name: Setup A record
+  community.general.cloudflare_dns:
+    api_token: "{{ lookup('ansible.builtin.env', 'CF_TOKEN') }}"
+    zone: auto-mate.cc
+    record: "{{ inventory_hostname.split('.')[0] }}"
+    type: A
+    value: "{{ droplet_ipv4 }}"
+    solo: true
+  delegate_to: localhost
+
+- name: Wait for DNS change to propogate
+  ansible.builtin.wait_for_connection:
