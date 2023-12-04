@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUserAuth } from "./UserAuth";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
+import {ref, set } from "firebase/database";
+import { auth, db } from "../firebase";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore"; 
 
 // This needs changing to actually handle sending an email, with also formating "i.e Dear email, here is your login: email, password..."
 const mockFirebaseSendEmail = async (email, password) => {
@@ -73,6 +75,35 @@ export default function Workflow() {
     email: "",
     jobRole: "",
   });
+  
+  
+  const useAuth = useUserAuth()
+  const saveWorkflow = async () => {
+
+    try {
+      //Gets list of names from SelectedActions
+      const namesArray = selectedActions.map(item => item.name);
+
+
+      // Add a new document in collection "workflows"
+      // So we add a new workflow doc under users, under this email, under workflows
+      // We need to update the last parameter to change, maybe a useState count
+      await setDoc(doc(db, "users" ,useAuth.user.email , "workflows" ,"workflow2"), {
+        names: namesArray
+      });
+
+    } catch (err) {
+      console.log("error",err)
+      alert(err.message);
+    }
+  };
+
+
+
+
+
+
+
 
   const addAction = (actionName) => {
     const lastAction = selectedActions[selectedActions.length - 1];
@@ -102,6 +133,7 @@ export default function Workflow() {
     }
   };
 
+
   const addEnterDetailsAction = () => {
     setSelectedActions((prev) => [
       ...prev,
@@ -111,6 +143,7 @@ export default function Workflow() {
     setDetailsDialog(false);
     setFormData({ name: "", email: "", jobRole: "" });
   };
+
 
   const removeAction = (indexToRemove) => {
     setSelectedActions((prev) =>
@@ -189,6 +222,7 @@ export default function Workflow() {
         </div>
       )}
 
+
       {/* Add Actions */}
       <div className="mb-4">
         <h2>Add Actions</h2>
@@ -204,6 +238,7 @@ export default function Workflow() {
           )
         )}
       </div>
+
 
       {/* Display Selected Actions */}
       <div className="mb-4">
@@ -226,6 +261,8 @@ export default function Workflow() {
         </ul>
       </div>
 
+
+
       {/* Execute Custom Workflow */}
       <button
         className="mt-4 bg-blue-500 text-white p-2 rounded"
@@ -233,6 +270,16 @@ export default function Workflow() {
       >
         Start Custom Workflow
       </button>
+
+      {/* Execute Custom Workflow */}
+      <button
+        className="mt-4 bg-blue-500 text-white p-2 rounded"
+        onClick={saveWorkflow}
+      >
+        Save Workflow
+      </button>
+
+
     </div>
   );
 }
