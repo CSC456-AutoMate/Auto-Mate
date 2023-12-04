@@ -108,7 +108,7 @@ export default function Workflow() {
       // Add a new document in collection "workflows"
       // So we add a new workflow doc under users, under this email, under workflows
       // We need to update the last parameter to change, maybe a useState count
-      await setDoc(doc(db, "users" ,useAuth.user.email , "workflows" ,"workflow2"), {
+      await setDoc(doc(db, "users" ,useAuth.user.email , "workflows" ,"workflow3"), {
         names: namesArray
       });
 
