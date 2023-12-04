@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Production
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  Deploy:
+   Deploy_Production:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +16,7 @@ jobs:
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: site.yaml
+          playbook: deploy-production.yaml
           directory: ansible
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           requirements: requirements.yml

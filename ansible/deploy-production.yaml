@@ -1,7 +1,7 @@
 ---
 
 - name: Configure droplets
-  hosts: cloud
+  hosts: production
   gather_facts: false
   pre_tasks:
     - name: Include droplets role

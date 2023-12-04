@@ -1,0 +1,27 @@
+---
+
+- name: Configure droplets
+  hosts: staging
+  gather_facts: false
+  pre_tasks:
+    - name: Include droplets role
+      ansible.builtin.include_role:
+        name: droplets
+        apply:
+          become: false
+    - name: Gather facts
+      ansible.builtin.setup:
+  roles:
+    - provision
+    - auth
+    - hostname
+    - hosts
+    - ntp
+    - ssh
+    - timezone
+    - ufw
+    - unattended-upgrades
+    - geerlingguy.nodejs
+    - basic_setup
+  remote_user: root
+  become: true

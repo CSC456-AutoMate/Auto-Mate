@@ -1,6 +1,6 @@
 ---
 
-ufw__rules__cloud:
+ufw__rules__production:
   OpenSSH:
     name: OpenSSH
     policy: allow
