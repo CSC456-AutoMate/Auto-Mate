@@ -1,0 +1,31 @@
+---
+
+- name: Update local facts
+  ansible.builtin.setup:
+    filter: ansible_local
+
+- name: Add provision local fact
+  ansible.builtin.include_role:
+    name: local_fact
+  with_items: "{{ provision__pre_upgrade }}"
+  when: ansible_local.provision is not defined
+
+- name: Run apt-get dist-upgrade
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: dist
+    force_apt_get: true
+  when: (ansible_local.provision is not defined) or ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
+  notify:
+    - Reboot system after dist-upgrade
+  register: aptDistUpgrade
+
+# Cannot use handler due to bug with include_role and handlers
+- name: Set provision local fact
+  ansible.builtin.include_role:
+    name: local_fact
+  with_items: "{{ provision__post_upgrade }}"
+  when: aptDistUpgrade.changed
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

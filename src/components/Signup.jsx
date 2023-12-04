@@ -19,7 +19,8 @@ const Signup = () => {
         navigate("/");
       })
     } catch (err) {
-   
+      console.log(err.message)
+      alert(err.message)
       setErr(true);
     }
   };

@@ -1,0 +1,23 @@
+---
+
+ssh__port: 22
+
+ssh__password_authentication: "yes"
+
+ssh__public_key_authentication: "yes"
+
+ssh__root_login: "no"
+
+ssh__authorized_keys_path: false
+
+ssh__allowed_groups: []
+
+ssh__authentication_methods: false
+
+ssh__ufw_rules:
+  OpenSSH:
+    name: OpenSSH
+    policy: allow
+  mosh:
+    name: mosh
+    policy: allow

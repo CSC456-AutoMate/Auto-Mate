@@ -1,0 +1,27 @@
+---
+
+- name: Reload systemctl
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Create env
+  ansible.builtin.template:
+    src: env.j2
+    dest: /opt/automate/.env
+    mode: 0644
+
+- name: Install packages based on package.json
+  community.general.npm:
+    path: /opt/automate
+    ci: true
+
+- name: Build project
+  ansible.builtin.command: npm run build
+  args:
+    chdir: /opt/automate/
+  changed_when: true
+
+- name: Start service
+  ansible.builtin.systemd:
+    name: automate
+    state: started

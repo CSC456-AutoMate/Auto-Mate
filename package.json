@@ -5,11 +5,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite preview --host --port 80",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "vitest --coverage"
+    "test": "npm run vitest:test && npm run playwright:test",
+    "vitest:test": "vitest run src/tests",
+    "playwright:test": "playwright test",
+    "coverage": "vitest run src/tests --coverage"
   },
   "dependencies": {
     "@emailjs/browser": "^3.11.0",

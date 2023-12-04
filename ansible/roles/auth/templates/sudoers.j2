@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+{% for group in auth__groups %}
+{% if auth__groups[group].state == 'present' %}
+{% if auth__groups[group].privileges is defined %}
+{% for privilege in auth__groups[group].privileges %}
+%{{ group }}   {{ privilege }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,18 @@
+---
+
+- name: "Check if home directory exists for {{ item.key }}"
+  ansible.builtin.stat:
+    path: "{{ playbook_dir }}/files/home/{{ item.key }}/"
+  register: home_directory_exists
+  run_once: true
+  become: false
+  delegate_to: localhost
+
+- name: "Copy home directory for {{ item.key }}"
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/files/home/{{ item.key }}/"
+    owner: "{{ item.key }}"
+    force: false
+    dest: "/home/{{ item.key }}/"
+    mode: preserve
+  when: home_directory_exists.stat.exists

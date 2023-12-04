@@ -1,0 +1,6 @@
+[local]
+localhost ansible_connection=local
+
+[cloud]
+vm[01:01].auto-mate.cc
+

@@ -25,7 +25,9 @@ serviceAccountKey.json
 *.njsproj
 *.sln
 *.sw?
+
+# Testing
+coverage/
 /test-results/
 /playwright-report/
 /playwright/.cache/
-

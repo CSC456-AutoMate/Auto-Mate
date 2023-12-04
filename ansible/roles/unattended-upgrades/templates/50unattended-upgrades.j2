@@ -1,0 +1,15 @@
+// {{ ansible_managed }}
+
+Unattended-Upgrade::Allowed-Origins {
+    {% for allowed_origin in unattended_upgrades__allowed_origins %}
+    "{{ allowed_origin }}";
+    {% endfor %}
+};
+
+Unattended-Upgrade::Package-Blacklist {
+    {% for blacklisted_package in unattended_upgrades__package_blacklist %}
+    "{{ blacklisted_package }}";
+    {% endfor %}
+};
+
+Unattended-Upgrade::Automatic-Reboot "{{ unattended_upgrades__auto_reboot }}";

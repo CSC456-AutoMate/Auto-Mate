@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUserAuth } from "./UserAuth";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
 import axios from "axios";
 import emailjs from '@emailjs/browser';
 
+import {ref, set } from "firebase/database";
+import { auth, db } from "../firebase";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore"; 
 
 
 //parent class
@@ -56,6 +58,14 @@ class SendCustomEmail extends Task {
   }
 }
 
+class AddUserToGroup extends Task {
+  async execute() {
+    // Need to wait 3 minutes for User to be added to Group
+    console.log("Wait 3 minutes for Azure User to be created")
+    await new Promise((res) => setTimeout(res, 180000));
+  }
+}
+
 //create login action
 class CreateUserLogin extends Task {
   constructor(details, signUpFunc) {
@@ -73,7 +83,7 @@ class CreateUserLogin extends Task {
   }
 }
 
-//send email action (need to actually include the real sending email)
+//Reset Password action (need to actually include the real sending email)
 class SendEmail extends Task {
   constructor(details) {
     super();
@@ -164,6 +174,9 @@ export default function Workflow() {
   const [tasksCompleted, setTasksCompleted] = useState([]);
   const [detailsDialog, setDetailsDialog] = useState(false);
   const [azureDialog, setAzureDialog] = useState(false);
+  const [groupDialog, setGroupDialog] = useState(false);
+  const [workflowName, setWorkflowName] = useState('')
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -186,12 +199,44 @@ const [calendarEventData, setCalendarEventData] = useState({
 
 
   
+  
+  
+  const useAuth = useUserAuth()
+  const saveWorkflow = async () => {
+
+    try {
+      //Gets list of names from SelectedActions
+      const namesArray = selectedActions.map(item => item.name);
+
+      // Add a new document in collection "workflows"
+      // So we add a new workflow doc under users, under this email, under workflows
+      // We need to update the last parameter to change, maybe a useState count
+      await setDoc(doc(db, "users" ,useAuth.user.email , "workflows" ,workflowName), {
+        names: namesArray
+      });
+
+    } catch (err) {
+      console.log("error",err)
+      alert(err.message);
+    }
+  };
+
+
+
+
+
+
+
 
   const [azureFormData, setAzureFormData] = useState({
     display_name: "",
     mail_nickname: "",
     user_principal_name: "",
     password: "",
+  });
+
+  const [groupFormData, setGroupFormData] = useState({
+    user_principal_name: ""
   });
   
 
@@ -214,9 +259,9 @@ const [calendarEventData, setCalendarEventData] = useState({
       ]);
       setTasksCompleted((prev) => [...prev, false]);
     } 
-    // Logic for "Send Email" action
+    // Logic for "Reset Password" action
     else if (
-      actionName === "Send Email" &&
+      actionName === "Reset Password" &&
       lastAction &&
       lastAction.name === "Create User Login"
     ) {
@@ -238,9 +283,14 @@ const [calendarEventData, setCalendarEventData] = useState({
       setEmailDialog(true);
     } else if (actionName === "Create Calendar Event") {
       setCalendarEventDialog(true);
+    } else if (
+      actionName === "Add User to Group"
+    ) {
+      setGroupDialog(true);
     }
   };
   
+
 
   const addEnterDetailsAction = () => {
     setSelectedActions((prev) => [
@@ -251,6 +301,7 @@ const [calendarEventData, setCalendarEventData] = useState({
     setDetailsDialog(false);
     setFormData({ name: "", email: "", jobRole: "" });
   };
+
 
   const handleAzureUser = async (e) => {
     e.preventDefault();
@@ -267,6 +318,24 @@ const [calendarEventData, setCalendarEventData] = useState({
       console.log(response.data);
     } catch (error) {
       console.error('Error creating user:', error);
+    }
+  };
+
+  const handleGroup = async (e) => {
+    e.preventDefault();
+    setSelectedActions((prev) => [
+      ...prev,
+      { name: "Add User to Group", data: groupFormData },
+    ]);
+    setTasksCompleted((prev) => [...prev, false]);
+    setGroupDialog(false);
+    setGroupFormData({user_principal_name:""});
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/group', groupFormData);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error adding user to group:', error);
     }
   };
 
@@ -291,7 +360,7 @@ const [calendarEventData, setCalendarEventData] = useState({
         case "Create User Login":
           taskInstance = new CreateUserLogin(action.data, signUp);
           break;
-        case "Send Email":
+        case "Reset Password":
           taskInstance = new SendEmail(action.data);
           break;
         case "Send Custom Email":
@@ -319,8 +388,8 @@ const [calendarEventData, setCalendarEventData] = useState({
       {/* <h1 className="text-2xl mb-4">Custom Workflow Builder</h1> */}
 
       {detailsDialog && (
-        <div className="mb-4">
-          <h2>Enter Details</h2>
+        <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
+          <h2 className="justify-center text-center">Enter Details</h2>
           <div>
             <label>Name:</label>
             <input
@@ -344,7 +413,7 @@ const [calendarEventData, setCalendarEventData] = useState({
             />
           </div>
           <div className="mt-2 mb-4">
-            <label>Job Role:</label>
+            <label>Role:</label>
             <input
               type="text"
               value={formData.jobRole}
@@ -359,7 +428,7 @@ const [calendarEventData, setCalendarEventData] = useState({
             onClick={addEnterDetailsAction}
             className="mt-4 bg-blue-500 text-white p-2 rounded"
           >
-            Add "Enter Details" Action
+            Add Enter Details
           </button>
           <button
             onClick={() => setDetailsDialog(false)}
@@ -371,10 +440,10 @@ const [calendarEventData, setCalendarEventData] = useState({
       )}
       
       {emailDialog && (
-  <div className="mb-4">
-    <h2>Send Custom Email</h2>
+  <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
+    <h2 className="text-center">Send Custom Email</h2>
     <div>
-      <label>From:</label>
+      <label>From Name:</label>
       <input
         type="text"
         value={emailFormData.from_name}
@@ -385,9 +454,16 @@ const [calendarEventData, setCalendarEventData] = useState({
       />
     </div>
     <div className="mt-2">
-      <label>To:</label>
+      <label>To Email:</label>
       <input
-        type="email"
+        type="text"
+        className="ml-2 border rounded p-1"
+      />
+    </div>
+    <div className="mt-2">
+      <label>To Name:</label>
+      <input
+        type="text"
         value={emailFormData.to_name}
         onChange={(e) =>
           setEmailFormData((prev) => ({ ...prev, to_name: e.target.value }))
@@ -409,7 +485,7 @@ const [calendarEventData, setCalendarEventData] = useState({
       onClick={addSendCustomEmailAction}
       className="mt-4 bg-blue-500 text-white p-2 rounded"
     >
-      Add "Send Custom Email" Action
+      Add Custom Email
     </button>
     <button
       onClick={() => setEmailDialog(false)}
@@ -421,7 +497,7 @@ const [calendarEventData, setCalendarEventData] = useState({
 )}
 
 {calendarEventDialog && (
-  <div>
+  <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
     <h2>Calendar Event Details</h2>
     <input
       type="date"
@@ -439,15 +515,17 @@ const [calendarEventData, setCalendarEventData] = useState({
       onChange={(e) => setCalendarEventData({...calendarEventData, endTime: e.target.value})}
     />
     <textarea
+      className="bg-gray-100"
       value={calendarEventData.message}
       onChange={(e) => setCalendarEventData({...calendarEventData, message: e.target.value})}
     />
-    <button onClick={() => setCalendarEventDialog(false)}>Close Calendar Dialog</button>
-    <button onClick={() => addCalendarEventAction()}>Add Calendar Event</button>
+    <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={() => addCalendarEventAction()}>Add Calendar Event</button>
+    <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={() => setCalendarEventDialog(false)}>Close</button>
   </div>
 )}
       {/* Azure User Details */}
       {azureDialog && (
+        <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
         <form onSubmit={handleAzureUser}>
           <h1>Enter Azure User Details</h1>
           <div>
@@ -503,15 +581,45 @@ const [calendarEventData, setCalendarEventData] = useState({
             />
           </div>
           <br />
-          <button onClick={() => setAzureDialog(false)}>Close Azure Dialog</button>
-          <button type="submit" >Submit</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" type="submit" >Add Azure</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={() => setAzureDialog(false)}>Close</button>
         </form>
+        </div>
+      )}
+
+
+      {/* Add User to Group Details */}
+      {groupDialog && (
+        <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
+        <form onSubmit={handleGroup}>
+          <h1 style={{ color: 'red' }}>WAIT FOR NEW USER TO BE CREATED BEFORE ADDING TO GROUP (wait ~ 3 mins)</h1>
+          <h1>Enter User Principal Name</h1>
+          <div >
+            <label>User Principal Name:</label>
+            <input
+              type="text"
+              id = "userPrincipalName"
+              name="userPrincipalName"
+              value={groupFormData.user_principal_name}
+              onChange={(e) =>
+                setGroupFormData((prev) => ({ ...prev, user_principal_name: e.target.value }))
+              }
+              className="ml-2 border rounded p-1"
+            />
+          </div>
+          <br />
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" type="submit" >Submit</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={()=> setGroupDialog(false)} >close</button>
+
+
+        </form>
+        </div>
       )}
 
       {/* Add Actions */}
       <div className="mb-4">
         <h2>Add Actions</h2>
-        {["Enter Details", "Create User Login", "Send Email", "Create Azure User", "Send Custom Email", "Create Calendar Event"].map(
+        {["Enter Details", "Create User Login", "Reset Password", "Create Azure User", "Send Custom Email", "Create Calendar Event", "Add User to Group"].map(
           (actionName) => (
             <button
               key={actionName}
@@ -523,6 +631,7 @@ const [calendarEventData, setCalendarEventData] = useState({
           )
         )}
       </div>
+
 
       {/* Display Selected Actions */}
       <div className="mb-4">
@@ -545,6 +654,8 @@ const [calendarEventData, setCalendarEventData] = useState({
         </ul>
       </div>
 
+
+
         {/* Execute Custom Workflow */}
         <button
         className="mt-4 bg-blue-500 text-white p-2 rounded"
@@ -553,12 +664,26 @@ const [calendarEventData, setCalendarEventData] = useState({
         Start Custom Workflow
       </button>
       {selectedActions.length > 0 && (
+        <div className="flex flex-col justify-center align-items">
+        <input
+          type="text"
+          className="mt-4 p-2 rounded"
+          placeholder="Enter workflow name"
+          value={workflowName}
+          onChange={(e) => setWorkflowName(e.target.value)} 
+        />
         <button
           className="mt-4 bg-green-500 text-white p-2 rounded"
+          onClick={saveWorkflow}
         >
-          Save Custom Workflow
+          Save Workflow
         </button>
+      </div>
         )}
+
+      
+
+
     </div>
   );
 }
