@@ -17,6 +17,9 @@ const Profile = () => {
         const handleClick = () => {
             setShowComponent(true);
         };
+        const handleCloseClick = () => {
+            setShowComponent(false);
+        };
 
     
         const handleSubmit = async (e) => {
@@ -39,6 +42,8 @@ const Profile = () => {
     return (
         <div className="flex h-screen bg-slate-400">
             <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
+
+
                 <a data-testid="login-1" className="flex justify-center items-center mb-3 font-bold">User Profile</a>
 
                 <div>
@@ -65,13 +70,25 @@ const Profile = () => {
                         <button data-testid="updatePassword-button" className="w-full bg-indigo-700 hover:bg-green-700 text-white font-bold py-2 px-4 mb-6 rounded" type="submit">Update Password</button>
                     </div> 
                 </form>
+                <button className="w-full bg-indigo-700 hover:bg-green-700 text-white font-bold py-2 px-4 mb-6 rounded" onClick={handleClick}>Display Workflows</button>
                 
             </div>
             <div>
-                        <button className="w-full bg-indigo-700 hover:bg-green-700 text-white font-bold py-2 px-4 mb-6 rounded" onClick={handleClick}>Display Workflows</button>
-                        {showComponent && <ListOfWorkflows/>}
+                
 
                 </div>
+                {showComponent && (
+                            <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
+                            <ListOfWorkflows />
+
+                            <button
+                                className=""
+                                onClick={handleCloseClick}
+                            >
+                                Close Workflows
+                            </button>
+                            </div>
+                        )}
         </div>
         
 

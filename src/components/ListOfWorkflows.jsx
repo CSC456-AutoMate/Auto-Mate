@@ -62,15 +62,14 @@ function ListOfWorkflows() {
 
   return (
     <div>
-        <div className="flex h-screen bg-slate-400">
+        {/* <div className="flex h-screen bg-slate-400"> */}
             <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
                 <a data-testid="login-1" className="flex justify-center items-center mb-3 font-bold">List of Workflows</a>
 
                 
                     <p class="w-full text-grey-darkest"></p>
 
-                    {/* I DO NOT GET WHY ITS NOT MAPPING LOL */}
-                    {/* TODO */}
+                    {/* MAPS THE WORKFLOW */}
                     <div className="space-y-4">
                         {workflows.map((workflow, index) => (
                             <React.Fragment key={index}>
@@ -95,7 +94,7 @@ function ListOfWorkflows() {
             
         </div>
 
-    </div> 
+    // </div> 
   )
 }
 
