@@ -1,30 +1,47 @@
 import React, { useState } from "react";
 import { useUserAuth } from "./UserAuth";
 import { useNavigate, Link } from "react-router-dom";
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setErr] = useState(false);
-  const { signUp } = useUserAuth();
+  const { signUp, user } = useUserAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signUp(email, password);
-      navigate("/login");
+      await signUp(email, password).then(async () => {
+        await addUserdata();
+        navigate("/");
+      })
     } catch (err) {
    
       setErr(true);
     }
   };
 
+  const addUserdata = async (e) => {
+    await setDoc(doc(db, "users", email), {
+      email: email,
+      role: "",
+    })
+      .then((docRef) => {
+        console.log("Document Id:", docRef.id);
+      })
+      .catch((error) => {
+        console.log("Error adding document:", error);
+      });
+  };
+
   return (
-    <div className="flex h-screen bg-slate-400">
+    <div className="flex h-screen bg-gradient-to-b from-slate-300 to-slate-600">
       <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
         <a data-testid="signup-heading" className="flex justify-center items-center mb-3 font-bold">SignUp</a>
-        {/* <img class="w-20 mx-auto mb-5" src={} /> */}
+        {/* <img className="w-20 mx-auto mb-5" src={} /> */}
         <form onSubmit={handleSubmit}>
           <div>
           <span data-testid="signup-error" style={{visibility: error ? "visible" : "hidden", color: "red"}} >Sign up error</span>
