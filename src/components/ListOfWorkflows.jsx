@@ -22,14 +22,19 @@ function ListOfWorkflows() {
 
             if (querySnapshot) {
                 setWorkflows(workflows,[])
-
                 querySnapshot.forEach((doc) => {
                     // doc.data() is never undefined for query doc snapshots
-                    console.log(doc.id, " => ", doc.data().names);
+                    console.log(doc.id, " => ", doc.data());
 
                     //Get names of actions and set that to workflows
-                    const combinedString = doc.data().names.join(', ');
-                    setWorkflows(prev => [...prev, combinedString])
+                    // const combinedString = doc.data().names.join(', ');
+                    const newData = {
+                        "id": doc.id,
+                        "name": doc.data().names
+                    };
+                    setWorkflows(prevWorkflows => [...prevWorkflows, newData]);
+
+                    
                 });
             } 
             else {
@@ -42,11 +47,13 @@ function ListOfWorkflows() {
         }
     };
 
-    const displayWorkflow = async () => {
-        //TODO: hopefully find a way to show this workflow in workflow schedule
-    };
 
-    console.log("Workflow",workflows)
+    console.log("WorkflowREAL",workflows)
+
+    //TODO: hopefully find a way to show this workflow in workflow schedule
+    //Given selectedActions names, try to generate the workflow in workflowBuilder
+    const displayWorkflow = async (names) => {
+    };
 
 
 
@@ -59,23 +66,28 @@ function ListOfWorkflows() {
             <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
                 <a data-testid="login-1" className="flex justify-center items-center mb-3 font-bold">List of Workflows</a>
 
-
-                <div class="flex mb-4 items-center">
                 
-                <p class="w-full text-grey-darkest">{workflows[0]}</p>
+                    <p class="w-full text-grey-darkest"></p>
 
-                {/* I DO NOT GET WHY ITS NOT MAPPING LOL */}
-                {/* TODO */}
-                <ul>
+                    {/* I DO NOT GET WHY ITS NOT MAPPING LOL */}
+                    {/* TODO */}
+                    <div className="space-y-4">
                         {workflows.map((workflow, index) => (
-                            <li key={index}>{workflow.name}</li>
+                            <React.Fragment key={index}>
+                            <div className="flex items-center"> {/* Use flex and items-center to align workflow.id and button horizontally */}
+                                <span className="mr-2">{workflow.id}</span> {/* Add margin to create space between workflow.id and button */}
+                                <button
+                                className="flex-no-shrink p-2 border-2 rounded hover:text-white text-green border-green hover:bg-green"
+                                onClick={() => displayWorkflow(workflow.names)} // Pass workflow.names to displayWorkflow function
+                                >
+                                Go
+                                </button>
+                            </div>
+                            </React.Fragment>
                         ))}
-                        <button class="flex-no-shrink p-2 ml-4 mr-2 border-2 rounded hover:text-white text-green border-green hover:bg-green" onClick = {displayWorkflow}>Go</button>
-                    
-                </ul>
+                    </div>
 
-                </div>
-            
+
 
                 
             </div>
