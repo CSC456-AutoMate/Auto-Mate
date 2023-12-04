@@ -1,0 +1,33 @@
+---
+
+- name: Set_fact ufw__rules
+  ansible.builtin.set_fact:
+    ufw__rules: "{{ ufw__rules | default([]) | combine(lookup('vars', item), recursive=true) }}"
+  loop: "{{ query('varnames', '^ufw__rules__.+') }}"
+
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    cache_valid_time: 300
+
+- name: "Set incoming policy to {{ ufw__incoming_policy }}"
+  ansible.builtin.ufw:
+    direction: incoming
+    policy: "{{ ufw__incoming_policy }}"
+  notify: Reload UFW
+
+- name: "Set outgoing policy to {{ ufw__outgoing_policy }}"
+  ansible.builtin.ufw:
+    direction: outgoing
+    policy: "{{ ufw__outgoing_policy }}"
+  notify: Reload UFW
+
+- name: Add rules
+  ansible.builtin.include_role:
+    name: ufw
+    tasks_from: rule
+  loop: "{{ ufw__rules | dict2items }}"
+
+- name: Enable UFW
+  ansible.builtin.ufw:
+    state: enabled

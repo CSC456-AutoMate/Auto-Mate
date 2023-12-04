@@ -1,0 +1,30 @@
+---
+
+ansible_python_interpreter: /usr/bin/python3
+
+auth__groups__all:
+  devops:
+    state: present
+    privileges:
+      - 'ALL = (ALL) NOPASSWD: ALL'
+
+auth__users__all:
+  sphillips:
+    password: ''
+    state: present
+    primary_group: devops
+    authorized_keys:
+      - key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGsEA9/c/lO4VpXNxNtz7p67qxdVK/K0idpQwP0oWEn6 armyf35@gmail.com'
+        state: present
+
+ssh__password_authentication: 'no'
+
+ssh__root_login: 'yes'
+
+ssh__allowed_groups__all:
+  - devops
+  - root
+
+timezone: 'America/New_York'
+
+nodejs_version: '20.x'

@@ -1,0 +1,14 @@
+---
+
+- name: Create directory for ansible local facts
+  ansible.builtin.file:
+    state: directory
+    recurse: true
+    path: /etc/ansible/facts.d
+
+- name: "Creating local fact - {{ item.name }}"
+  ansible.builtin.template:
+    src: template.fact.j2
+    dest: "/etc/ansible/facts.d/{{ item.name }}.fact"
+    mode: 0644
+  notify: Update local facts

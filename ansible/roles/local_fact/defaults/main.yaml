@@ -1,0 +1,9 @@
+---
+
+# local_facts__example:
+#   - name: exampleFileName
+#     categories:
+#       - name: exampleCategoryName
+#         facts:
+#           - name: exampleFact
+#             value: false

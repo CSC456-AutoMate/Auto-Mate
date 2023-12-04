@@ -1,0 +1,5 @@
+---
+
+- name: Reload UFW
+  ansible.builtin.ufw:
+    state: reloaded
