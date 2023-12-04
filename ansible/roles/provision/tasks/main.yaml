@@ -15,9 +15,7 @@
     update_cache: true
     upgrade: dist
     force_apt_get: true
-  when:
-    - ansible_local.provision is defined
-    - ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
+  when: (ansible_local.provision is not defined) or ansible_local.provision.setup.initial_setup is falsy(convert_bool=true)
   notify:
     - Reboot system after dist-upgrade
   register: aptDistUpgrade
