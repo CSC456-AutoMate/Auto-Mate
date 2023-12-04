@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useUserAuth } from "./UserAuth";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
 import axios from "axios";
 import {ref, set } from "firebase/database";
 import { auth, db } from "../firebase";
