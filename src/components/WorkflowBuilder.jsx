@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useUserAuth } from "./UserAuth";
 import { sendPasswordResetEmail } from "firebase/auth";
 import axios from "axios";
+import emailjs from '@emailjs/browser';
+
 import {ref, set } from "firebase/database";
 import { auth, db } from "../firebase";
 import { collection, getDocs, doc, setDoc } from "firebase/firestore"; 
 
-// This needs changing to actually handle sending an email, with also formating "i.e Dear email, here is your login: email, password..."
-const mockFirebaseSendEmail = async (email, password) => {
-  await new Promise((res) => setTimeout(res, 2000));
-};
 
 //parent class
 class Task {
@@ -39,6 +37,27 @@ class CreateAzureUser extends Task {
   }
 }
 
+
+
+
+// Send custom email action
+class SendCustomEmail extends Task {
+  constructor(emailDetails) {
+    super();
+    this.emailDetails = emailDetails;
+  }
+
+  async execute() {
+    try {
+      // Use emailjs.send instead of sendForm
+      await emailjs.send('service_qvu8paj', 'template_7tqnf0e', this.emailDetails, '71STLWyPvmPlMDfeQ');
+      console.log("Email sent successfully");
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  }
+}
+
 class AddUserToGroup extends Task {
   async execute() {
     // Need to wait 3 minutes for User to be added to Group
@@ -64,7 +83,7 @@ class CreateUserLogin extends Task {
   }
 }
 
-//send email action (need to actually include the real sending email)
+//Reset Password action (need to actually include the real sending email)
 class SendEmail extends Task {
   constructor(details) {
     super();
@@ -81,8 +100,75 @@ class SendEmail extends Task {
   }
 }
 
+class CreateCalendarEvent extends Task {
+  constructor(eventDetails) {
+    super();
+    this.eventDetails = eventDetails;
+  }
+
+  async execute() {
+    const icsData = generateICSData(this.eventDetails);
+    const blob = new Blob([icsData], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'event.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+
+function generateICSData(eventDetails) {
+  const { date, startTime, endTime, message } = eventDetails;
+  
+  const startDate = new Date(`${date}T${startTime}`).toISOString().replace(/-|:|\.\d\d\d/g,"");
+  const endDate = new Date(`${date}T${endTime}`).toISOString().replace(/-|:|\.\d\d\d/g,"");
+  
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'BEGIN:VEVENT',
+    `DTSTART:${startDate}`,
+    `DTEND:${endDate}`,
+    `SUMMARY:${message}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
+}
+
 //formating and logic
 export default function Workflow() {
+
+
+  const handleCancel = () => {
+    // Close the form dialog or reset form fields
+    setFormDialog(false); // Assuming you use a state to control the form's visibility
+    // Reset form data if needed
+    setFormData({
+        //...initial state of your form
+    });
+};
+
+  const addCalendarEventAction = () => {
+    setSelectedActions((prev) => [
+      ...prev,
+      { name: "Create Calendar Event", data: calendarEventData },
+    ]);
+    setTasksCompleted((prev) => [...prev, false]);
+    setCalendarEventDialog(false);
+  };
+
+  const addSendCustomEmailAction = () => {
+    setSelectedActions((prev) => [
+      ...prev,
+      { name: "Send Custom Email", data: emailFormData },
+    ]);
+    setTasksCompleted((prev) => [...prev, false]);
+    setEmailDialog(false);
+    setEmailFormData({ from_name: "", to_name: "", message: "" });
+  };
+  
   const { signUp } = useUserAuth();
   const [selectedActions, setSelectedActions] = useState([]);
   const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -96,6 +182,23 @@ export default function Workflow() {
     email: "",
     jobRole: "",
   });
+  const [emailFormData, setEmailFormData] = useState({
+    from_name: "",
+    to_name: "",
+    message: "",
+  });
+  const [emailDialog, setEmailDialog] = useState(false);
+
+const [calendarEventDialog, setCalendarEventDialog] = useState(false);
+const [calendarEventData, setCalendarEventData] = useState({
+  date: "",
+  startTime: "",
+  endTime: "",
+  message: "",
+});
+
+
+  
   
   
   const useAuth = useUserAuth()
@@ -139,10 +242,13 @@ export default function Workflow() {
 
   const addAction = (actionName) => {
     const lastAction = selectedActions[selectedActions.length - 1];
-
+  
+    // Logic for "Enter Details" action
     if (actionName === "Enter Details") {
       setDetailsDialog(true);
-    } else if (
+    } 
+    // Logic for "Create User Login" action
+    else if (
       actionName === "Create User Login" &&
       lastAction &&
       lastAction.name === "Enter Details"
@@ -152,8 +258,10 @@ export default function Workflow() {
         { name: actionName, data: lastAction.data },
       ]);
       setTasksCompleted((prev) => [...prev, false]);
-    } else if (
-      actionName === "Send Email" &&
+    } 
+    // Logic for "Reset Password" action
+    else if (
+      actionName === "Reset Password" &&
       lastAction &&
       lastAction.name === "Create User Login"
     ) {
@@ -162,18 +270,26 @@ export default function Workflow() {
         { name: actionName, data: lastAction.data },
       ]);
       setTasksCompleted((prev) => [...prev, false]);
-    } else if (
-      actionName === "Create Azure User" &&
-      lastAction &&
-      lastAction.name === "Send Email"
+    } 
+    // Logic for "Create Azure User" action
+    else if (
+      actionName === "Create Azure User"
     ) {
       setAzureDialog(true);
+    } 
+    // Logic for "Send Custom Email" action
+    else if (actionName === "Send Custom Email") {
+      // This will open the dialog for the user to input email details
+      setEmailDialog(true);
+    } else if (actionName === "Create Calendar Event") {
+      setCalendarEventDialog(true);
     } else if (
       actionName === "Add User to Group"
     ) {
       setGroupDialog(true);
     }
   };
+  
 
 
   const addEnterDetailsAction = () => {
@@ -236,16 +352,28 @@ export default function Workflow() {
   const runWorkflow = async () => {
     for (let i = 0; i < selectedActions.length; i++) {
       const action = selectedActions[i];
-      const taskInstance =
-        action.name === "Enter Details"
-          ? new EnterDetails(action.data)
-          : action.name === "Create User Login"
-          ? new CreateUserLogin(action.data, signUp)
-          : action.name === "Send Email"
-          ? new SendEmail(action.data)
-          : action.name === "Create Azure User"
-          ? new CreateAzureUser()
-          : new AddUserToGroup()
+      let taskInstance;
+      switch(action.name) {
+        case "Enter Details":
+          taskInstance = new EnterDetails(action.data);
+          break;
+        case "Create User Login":
+          taskInstance = new CreateUserLogin(action.data, signUp);
+          break;
+        case "Reset Password":
+          taskInstance = new SendEmail(action.data);
+          break;
+        case "Send Custom Email":
+          taskInstance = new SendCustomEmail(action.data);
+          break;
+        case "Create Azure User":
+          taskInstance = new CreateAzureUser();
+          break;
+        case "Create Calendar Event": // New case for creating calendar event
+          taskInstance = new CreateCalendarEvent(action.data);
+          break;
+        // ... [any other cases]
+      }
       await taskInstance.execute();
       setTasksCompleted((prev) => {
         const newStatus = [...prev];
@@ -256,12 +384,12 @@ export default function Workflow() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl mb-4">Custom Workflow Builder*</h1>
+    <div className="p-4 flex flex-col">
+      {/* <h1 className="text-2xl mb-4">Custom Workflow Builder</h1> */}
 
       {detailsDialog && (
-        <div className="mb-4">
-          <h2>Enter Details</h2>
+        <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
+          <h2 className="justify-center text-center">Enter Details</h2>
           <div>
             <label>Name:</label>
             <input
@@ -285,7 +413,7 @@ export default function Workflow() {
             />
           </div>
           <div className="mt-2 mb-4">
-            <label>Job Role:</label>
+            <label>Role:</label>
             <input
               type="text"
               value={formData.jobRole}
@@ -295,18 +423,109 @@ export default function Workflow() {
               className="ml-2 border rounded p-1"
             />
           </div>
+          
           <button
             onClick={addEnterDetailsAction}
             className="mt-4 bg-blue-500 text-white p-2 rounded"
           >
-            Add "Enter Details" Action
+            Add Enter Details
+          </button>
+          <button
+            onClick={() => setDetailsDialog(false)}
+            className="mt-4 bg-blue-500 text-white p-2 rounded"
+          >
+            Close
           </button>
         </div>
       )}
-
       
+      {emailDialog && (
+  <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
+    <h2 className="text-center">Send Custom Email</h2>
+    <div>
+      <label>From Name:</label>
+      <input
+        type="text"
+        value={emailFormData.from_name}
+        onChange={(e) =>
+          setEmailFormData((prev) => ({ ...prev, from_name: e.target.value }))
+        }
+        className="ml-2 border rounded p-1"
+      />
+    </div>
+    <div className="mt-2">
+      <label>To Email:</label>
+      <input
+        type="text"
+        className="ml-2 border rounded p-1"
+      />
+    </div>
+    <div className="mt-2">
+      <label>To Name:</label>
+      <input
+        type="text"
+        value={emailFormData.to_name}
+        onChange={(e) =>
+          setEmailFormData((prev) => ({ ...prev, to_name: e.target.value }))
+        }
+        className="ml-2 border rounded p-1"
+      />
+    </div>
+    <div className="mt-2 mb-4">
+      <label>Message:</label>
+      <textarea
+        value={emailFormData.message}
+        onChange={(e) =>
+          setEmailFormData((prev) => ({ ...prev, message: e.target.value }))
+        }
+        className="ml-2 border rounded p-1"
+      />
+    </div>
+    <button
+      onClick={addSendCustomEmailAction}
+      className="mt-4 bg-blue-500 text-white p-2 rounded"
+    >
+      Add Custom Email
+    </button>
+    <button
+      onClick={() => setEmailDialog(false)}
+      className="mt-4 bg-blue-500 text-white p-2 rounded"
+    >
+      Close
+    </button>
+  </div>
+)}
+
+{calendarEventDialog && (
+  <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
+    <h2>Calendar Event Details</h2>
+    <input
+      type="date"
+      value={calendarEventData.date}
+      onChange={(e) => setCalendarEventData({...calendarEventData, date: e.target.value})}
+    />
+    <input
+      type="time"
+      value={calendarEventData.startTime}
+      onChange={(e) => setCalendarEventData({...calendarEventData, startTime: e.target.value})}
+    />
+    <input
+      type="time"
+      value={calendarEventData.endTime}
+      onChange={(e) => setCalendarEventData({...calendarEventData, endTime: e.target.value})}
+    />
+    <textarea
+      className="bg-gray-100"
+      value={calendarEventData.message}
+      onChange={(e) => setCalendarEventData({...calendarEventData, message: e.target.value})}
+    />
+    <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={() => addCalendarEventAction()}>Add Calendar Event</button>
+    <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={() => setCalendarEventDialog(false)}>Close</button>
+  </div>
+)}
       {/* Azure User Details */}
       {azureDialog && (
+        <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
         <form onSubmit={handleAzureUser}>
           <h1>Enter Azure User Details</h1>
           <div>
@@ -362,12 +581,16 @@ export default function Workflow() {
             />
           </div>
           <br />
-          <button type="submit" >Submit</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" type="submit" >Add Azure</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={() => setAzureDialog(false)}>Close</button>
         </form>
+        </div>
       )}
+
 
       {/* Add User to Group Details */}
       {groupDialog && (
+        <div className="mb-4 flex flex-col justify-center bg-gray-300 m-auto rounded-lg p-5">
         <form onSubmit={handleGroup}>
           <h1 style={{ color: 'red' }}>WAIT FOR NEW USER TO BE CREATED BEFORE ADDING TO GROUP (wait ~ 3 mins)</h1>
           <h1>Enter User Principal Name</h1>
@@ -385,14 +608,18 @@ export default function Workflow() {
             />
           </div>
           <br />
-          <button type="submit" >Submit</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" type="submit" >Submit</button>
+          <button className="mt-4 bg-blue-500 text-white p-2 rounded" onClick={()=> setGroupDialog(false)} >close</button>
+
+
         </form>
+        </div>
       )}
 
       {/* Add Actions */}
       <div className="mb-4">
         <h2>Add Actions</h2>
-        {["Enter Details", "Create User Login", "Send Email", "Create Azure User", "Add User to Group"].map(
+        {["Enter Details", "Create User Login", "Reset Password", "Create Azure User", "Send Custom Email", "Create Calendar Event", "Add User to Group"].map(
           (actionName) => (
             <button
               key={actionName}
@@ -408,7 +635,7 @@ export default function Workflow() {
 
       {/* Display Selected Actions */}
       <div className="mb-4">
-        <h2>Selected Actions</h2>
+        <h2 className="text-center">Selected Actions</h2>
         <ul>
           {selectedActions.map((action, index) => (
             <li key={index} className="mb-2 flex items-center">
@@ -429,16 +656,15 @@ export default function Workflow() {
 
 
 
-      {/* Execute Custom Workflow */}
-      <button
+        {/* Execute Custom Workflow */}
+        <button
         className="mt-4 bg-blue-500 text-white p-2 rounded"
         onClick={runWorkflow}
       >
         Start Custom Workflow
       </button>
-
-      {/* Execute Custom Workflow */}
-      <div>
+      {selectedActions.length > 0 && (
+        <div className="flex flex-col justify-center align-items">
         <input
           type="text"
           className="mt-4 p-2 rounded"
@@ -447,12 +673,15 @@ export default function Workflow() {
           onChange={(e) => setWorkflowName(e.target.value)} 
         />
         <button
-          className="mt-4 bg-blue-500 text-white p-2 rounded"
+          className="mt-4 bg-green-500 text-white p-2 rounded"
           onClick={saveWorkflow}
         >
           Save Workflow
         </button>
       </div>
+        )}
+
+      
 
 
     </div>

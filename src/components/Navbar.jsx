@@ -24,7 +24,7 @@ const Navbar = () => {
     }
 
   return (
-    <nav className="border-gray-200 bg-stone-200">
+    <nav className="border-gray-200 bg-gradient-to-l from-slate-200 to-slate-400">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
       <Link to="/" className="flex items-center">
           <img src={logo} className="h-10 mr-3" />
@@ -45,14 +45,14 @@ const Navbar = () => {
           <ul className="flex flex-col font-medium mt-4 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-transparent">
             {user ? (
               <>
-                <li><Link to="/workflow" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Workflow</Link></li>
-                <li><Link to="/profile" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Profile</Link></li>
-                <li><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0"><button data-testid="logout" onClick={handleLogOut}>LogOut</button></a></li>
+                <li><Link to="/workflow" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-200 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Workflow</Link></li>
+                <li><Link to="/profile" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-200 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Profile</Link></li>
+                <li><a className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-200 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0"><button data-testid="logout" onClick={handleLogOut}>LogOut</button></a></li>
               </>
             ) : (
               <>
-                <li><Link to="/login" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Login</Link></li>
-                <li><Link to="/signup" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover-bg-gray-100 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Sign Up</Link></li>
+                <li><Link to="/login" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-200 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Login</Link></li>
+                <li><Link to="/signup" onClick={closeMenu} className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-200 md:hover-bg-transparent md:border-0 md:hover-text-blue-700 md:p-0">Sign Up</Link></li>
               </>
             )}
           </ul>

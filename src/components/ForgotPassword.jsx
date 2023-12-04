@@ -20,8 +20,8 @@ const ForgotPassword = () => {
     return ( 
         <div className="flex h-screen bg-slate-400">
         <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
-          <a data-testid="login-1" class="flex justify-center items-center mb-3 font-bold">Password Reset</a>
-          {/* <img class="w-20 mx-auto mb-5" src={} /> */}
+          <a data-testid="login-1" className="flex justify-center items-center mb-3 font-bold">Password Reset</a>
+          {/* <img className="w-20 mx-auto mb-5" src={} /> */}
           <form onSubmit={(e) => handleSubmit(e)}>
             <div>
               <label className="block mb-2 text-indigo-500" for="username">Email</label>
