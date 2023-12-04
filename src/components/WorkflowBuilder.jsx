@@ -89,6 +89,7 @@ export default function Workflow() {
   const [detailsDialog, setDetailsDialog] = useState(false);
   const [azureDialog, setAzureDialog] = useState(false);
   const [groupDialog, setGroupDialog] = useState(false);
+  const [workflowName, setWorkflowName] = useState('')
 
   const [formData, setFormData] = useState({
     name: "",
@@ -104,11 +105,10 @@ export default function Workflow() {
       //Gets list of names from SelectedActions
       const namesArray = selectedActions.map(item => item.name);
 
-
       // Add a new document in collection "workflows"
       // So we add a new workflow doc under users, under this email, under workflows
       // We need to update the last parameter to change, maybe a useState count
-      await setDoc(doc(db, "users" ,useAuth.user.email , "workflows" ,"workflow3"), {
+      await setDoc(doc(db, "users" ,useAuth.user.email , "workflows" ,workflowName), {
         names: namesArray
       });
 
@@ -438,12 +438,21 @@ export default function Workflow() {
       </button>
 
       {/* Execute Custom Workflow */}
-      <button
-        className="mt-4 bg-blue-500 text-white p-2 rounded"
-        onClick={saveWorkflow}
-      >
-        Save Workflow
-      </button>
+      <div>
+        <input
+          type="text"
+          className="mt-4 p-2 rounded"
+          placeholder="Enter workflow name"
+          value={workflowName}
+          onChange={(e) => setWorkflowName(e.target.value)} 
+        />
+        <button
+          className="mt-4 bg-blue-500 text-white p-2 rounded"
+          onClick={saveWorkflow}
+        >
+          Save Workflow
+        </button>
+      </div>
 
 
     </div>
