@@ -26,3 +26,6 @@
     name: local_fact
   with_items: "{{ provision__post_upgrade }}"
   when: aptDistUpgrade.changed
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
