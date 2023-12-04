@@ -22,10 +22,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-400">
+    <div className="flex h-screen bg-gradient-to-b from-slate-300 to-slate-600">
       <div className="w-full max-w-xs m-auto bg-white rounded-lg p-5">
         <a data-testid="login-1" className="flex justify-center items-center mb-3 font-bold">Login</a>
-        {/* <img class="w-20 mx-auto mb-5" src={} /> */}
+        {/* <img className="w-20 mx-auto mb-5" src={} /> */}
         <form onSubmit={handleSubmit}>
           <div>
           <span data-testid="login-error" style={{visibility: error ? "visible" : "hidden", color: "red"}} >Login Error</span>

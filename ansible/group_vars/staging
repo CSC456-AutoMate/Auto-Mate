@@ -1,0 +1,12 @@
+---
+
+ufw__rules__staging:
+  OpenSSH:
+    name: OpenSSH
+    policy: allow
+  80:
+    to_port: 80
+    policy: allow
+  443:
+    to_port: 443
+    policy: allow
