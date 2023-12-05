@@ -18,7 +18,7 @@
 
 - name: Clone repo
   ansible.builtin.git:
-    repo: https://github.com/CSC456-AutoMate/Auto-Mate.git
+    repo: "{{ lookup('ansible.builtin.env', 'GITHUB_REPO_URL') }}"
     dest: /opt/automate
     single_branch: true
     version: "{{ lookup('ansible.builtin.env', 'GITHUB_SHA') }}"
