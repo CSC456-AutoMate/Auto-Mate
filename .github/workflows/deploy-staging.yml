@@ -24,7 +24,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           requirements: requirements.yml
         env:
-          GITHUB_REPO_URL: ${{ github.repositoryUrl }}
+          GITHUB_REPO_URL: ${{ format('{0}/{1}.git', github.server_url, github.repository) }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF: ${{ github.ref }}
           CF_TOKEN: ${{ secrets.CF_TOKEN }}

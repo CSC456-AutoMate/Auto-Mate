@@ -23,7 +23,6 @@
     single_branch: true
     version: "{{ lookup('ansible.builtin.env', 'GITHUB_SHA') }}"
     refspec: "{{ lookup('ansible.builtin.env', 'GITHUB_REF') }}"
-    ssh_opts: "-o StrictHostKeyChecking=accept-new"
   notify:
     - Create env
     - Install packages based on package.json
