@@ -10,8 +10,7 @@ import workflow from '../assets/workflow.png'
 
 const Landing = () => {
   return (
-    <div className="bg-gradient-to-b from-slate-200 to-slate-600">
-        
+    <div className="bg-gradient-to-b min-h-screen from-slate-200 to-slate-600">
     <section className="text-gray-600 body-font">
       <div className="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
         <div className="text-center lg:w-2/3 w-full">
@@ -92,7 +91,7 @@ const Landing = () => {
             <div className="flex rounded-lg h-full bg-gray-100 p-8 flex-col">
               <div className="flex items-center mb-3">
               <img src={workflow} alt="Description of Image" className="w-8 h-8 mr-3 inline-flex items-center justify-center flex-shrink-0"/>
-            
+
                 <h2 className="text-gray-900 text-lg title-font font-medium">Custom Workflows</h2>
               </div>
               <div className="flex-grow">
