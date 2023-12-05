@@ -24,6 +24,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           requirements: requirements.yml
         env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
           CF_TOKEN: ${{ secrets.CF_TOKEN }}
           DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
           VITE_APP_FIREBASE_API_KEY: ${{ secrets.VITE_APP_FIREBASE_API_KEY }}

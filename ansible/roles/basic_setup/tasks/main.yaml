@@ -18,10 +18,11 @@
 
 - name: Clone repo
   ansible.builtin.git:
-    repo: https://github.com/armyf35/Auto-Mate.git
+    repo: https://github.com/CSC456-AutoMate/Auto-Mate.git
     dest: /opt/automate
     single_branch: true
-    version: assignment_deployment
+    version: "{{ lookup('ansible.builtin.env', 'GITHUB_SHA') }}"
+    refspec: "{{ lookup('ansible.builtin.env', 'GITHUB_REF') }}"
   notify:
     - Create env
     - Install packages based on package.json
