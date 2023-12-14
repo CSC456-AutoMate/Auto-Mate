@@ -1,1 +1,3 @@
-- name: geerlingguy.nodejs
+---
+roles:
+  - name: geerlingguy.nodejs
