@@ -25,3 +25,16 @@
     - basic_setup
   remote_user: root
   become: true
+
+- name: Configure domains
+  hosts: local
+  tasks:
+    - name: Setup CNAME record
+      community.general.cloudflare_dns:
+        api_token: "{{ lookup('ansible.builtin.env', 'CF_TOKEN') }}"
+        zone: auto-mate.cc
+        record: "{{ item.domain }}"
+        type: CNAME
+        value: "{{ item.target }}"
+        solo: true
+      loop: "{{ domains }}"

@@ -28,3 +28,11 @@ ssh__allowed_groups__all:
 timezone: 'America/New_York'
 
 nodejs_version: '20.x'
+
+domains:
+  - domain: auto-mate.cc
+    target: vm01.auto-mate.cc
+  - domain: develop.auto-mate.cc
+    target: vm02.auto-mate.cc
+  - domain: staging.auto-mate.cc
+    target: vm03.auto-mate.cc
