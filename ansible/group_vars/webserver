@@ -1,9 +1,6 @@
 ---
 
-ufw__rules__production:
-  OpenSSH:
-    name: OpenSSH
-    policy: allow
+ufw__rules__webserver:
   80:
     to_port: 80
     policy: allow
