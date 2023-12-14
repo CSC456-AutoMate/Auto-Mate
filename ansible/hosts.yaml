@@ -1,0 +1,14 @@
+---
+local:
+  hosts:
+    localhost:
+      ansible_connection: local
+production:
+  hosts:
+    vm[01:01].auto-mate.cc:
+develop:
+  hosts:
+    vm[02:02].auto-mate.cc:
+staging:
+  hosts:
+    vm[03:03].auto-mate.cc:
