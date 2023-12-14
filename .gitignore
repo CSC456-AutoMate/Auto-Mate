@@ -31,3 +31,6 @@ coverage/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Ansible galaxy
+ansible/roles/geerlingguy.nodejs
