@@ -12,3 +12,8 @@ develop:
 staging:
   hosts:
     vm[03:03].auto-mate.cc:
+webserver:
+  children:
+    production:
+    develop:
+    staging:
