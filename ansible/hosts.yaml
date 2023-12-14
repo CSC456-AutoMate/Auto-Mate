@@ -3,17 +3,40 @@ local:
   hosts:
     localhost:
       ansible_connection: local
+
 production:
+  children:
+    prometheus:
+    production_webserver:
+
+production_webserver:
   hosts:
     vm[01:01].auto-mate.cc:
+
 develop:
+  children:
+    prometheus:
+    develop_webserver:
+
+develop_webserver:
   hosts:
     vm[02:02].auto-mate.cc:
+
 staging:
+  children:
+    prometheus:
+    staging_webserver:
+
+staging_webserver:
   hosts:
     vm[03:03].auto-mate.cc:
+
 webserver:
   children:
-    production:
-    develop:
-    staging:
+    production_webserver:
+    develop_webserver:
+    staging_webserver:
+
+prometheus:
+  hosts:
+    vm[04:04].auto-mate.cc:

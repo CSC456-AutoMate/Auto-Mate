@@ -36,3 +36,5 @@ domains:
     target: vm02.auto-mate.cc
   - domain: staging.auto-mate.cc
     target: vm03.auto-mate.cc
+  - domain: prometheus
+    target: vm04.auto-mate.cc

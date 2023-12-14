@@ -1,7 +1,7 @@
 ---
 
 - name: Configure droplets
-  hosts: "{{ lookup('ansible.builtin.env', 'DEPLOYMENT_ENV') }}"
+  hosts: all:&{{ lookup('ansible.builtin.env', 'DEPLOYMENT_ENV') }}:!local
   gather_facts: false
   pre_tasks:
     - name: Include droplets role
@@ -21,6 +21,13 @@
     - timezone
     - ufw
     - unattended-upgrades
+  remote_user: root
+  become: true
+
+- name: Configure webservers
+  hosts: webserver:&{{ lookup('ansible.builtin.env', 'DEPLOYMENT_ENV') }}
+  gather_facts: true
+  roles:
     - geerlingguy.nodejs
     - basic_setup
   remote_user: root
