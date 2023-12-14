@@ -16,11 +16,12 @@ jobs:
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: deploy-production.yaml
+          playbook: deploy.yaml
           directory: ansible
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           requirements: requirements.yml
         env:
+          DEPLOYMENT_ENV: "production"
           GITHUB_REPO_URL: ${{ format('{0}/{1}.git', github.server_url, github.repository) }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF: ${{ github.ref }}
